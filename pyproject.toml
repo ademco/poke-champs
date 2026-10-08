@@ -38,3 +38,7 @@ target-version = "py312"
 [tool.ruff.lint]
 # E/F: pyflakes + pycodestyle errors; I: import order; B: likely bugs; UP: modern syntax
 select = ["E", "F", "I", "B", "UP"]
+
+[tool.ruff.lint.per-file-ignores]
+# One team per line reads better than wrapped data.
+"tools/showdown_export/build_legality_teams.py" = ["E501"]

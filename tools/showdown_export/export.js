@@ -104,6 +104,15 @@ const moves = dex.moves.all().filter(keep).map(m => ({
 	flags: Object.keys(m.flags).sort(),
 	short_desc: text.Moves[m.id]?.shortDesc ?? null,
 	legal: !m.isNonstandard,
+	// Fields the damage calculator needs (phase 2).
+	multihit: m.multihit === undefined ? null : [].concat(m.multihit), // [2] or [2, 5]
+	has_secondary: Boolean(m.secondary || m.secondaries?.length), // Sheer Force
+	recoil: Boolean(m.recoil), // Reckless
+	has_crash_damage: Boolean(m.hasCrashDamage), // Reckless
+	override_offensive_stat: m.overrideOffensiveStat || null, // Body Press: 'def'
+	override_defensive_stat: m.overrideDefensiveStat || null, // Psyshock: 'def'
+	ignore_defensive: Boolean(m.ignoreDefensive), // Sacred Sword
+	will_crit: Boolean(m.willCrit), // Flower Trick, Wicked Blow
 })).sort(byId);
 
 const abilities = dex.abilities.all().filter(keep).sort(byId).map(a => ({

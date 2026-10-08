@@ -9,7 +9,7 @@ Last reviewed: **2026-10-08**. Every record and chunk we store carries `source`,
 | Key | Source | License / terms | Status | What we use it for |
 |---|---|---|---|---|
 | `showdown` | [Pokémon Showdown](https://github.com/smogon/pokemon-showdown) | MIT (verified: `LICENSE`) | ✅ approved | Primary source of facts: base stats, types, abilities, Champions legality, learnsets, items, move changes, mechanics code |
-| `smogon_calc` | [@smogon/calc](https://github.com/smogon/damage-calc) (npm 0.12.0) | MIT (verified: `LICENSE`) | ✅ approved | Reference outputs for testing our Python damage calc |
+| `smogon_calc` | [@smogon/calc](https://github.com/smogon/damage-calc) (npm 0.12.0) | MIT (verified: `LICENSE`) | ✅ approved | Reference outputs: our Python port matches 78/78 scenarios roll for roll |
 | `community_data` | [otterlyclueless/pokemon-champions-data](https://github.com/otterlyclueless/pokemon-champions-data) | CC BY 4.0 (verified: `LICENSE`), see caveats | 🔎 reference only | Cross-check only |
 | `bulbapedia` | [Bulbapedia](https://bulbapedia.bulbagarden.net/wiki/Bulbapedia:Copyrights) | CC BY-NC-SA 2.5 (per search results; page not opened) | ⏳ pending | Mechanics prose for RAG, with attribution |
 | `smogon_stats` | [smogon.com/stats](https://www.smogon.com/stats/) | No explicit license found yet | ⏳ pending | Monthly usage %, sets, teammates |
@@ -41,8 +41,10 @@ Last reviewed: **2026-10-08**. Every record and chunk we store carries `source`,
 ### `smogon_calc`: @smogon/calc (MIT) ✅
 - License: MIT (`Copyright (c) 2013-2025 Honko and other contributors`). Latest npm version is 0.12.0; the repo was last updated 2026-10-08.
 - It has a dedicated Champions mode (`calc/src/mechanics/champions.ts`, treated as "gen 0"), and its Champions stat formula matches Showdown's.
-- **The Life Orb gap:** third parties reported missing item modifiers like Life Orb in Champions mode. The current source *does* handle Life Orb (`champions.ts` line ~1164). One Champions calc project says Life Orb and some Mega Stones were "added in a later release", so the gap was probably real in older versions and is now fixed. **Not yet verified by running it.** Phase 2 adds a test fixture with Life Orb to confirm.
-- How we use it: we port the damage formula to Python and generate expected outputs with `@smogon/calc` in CI using `actions/setup-node`. That means **no Node install on your Mac**: Node only ever runs in Docker or CI.
+- **The Life Orb gap (verified 2026-10-08):** third parties reported missing item modifiers like Life Orb in Champions mode. In 0.12.0 Life Orb **is** applied (the fixture `lifeorb-extremespeed` shows "Life Orb Dragonite … 64-75"), so the gap was real only in older versions.
+- **How we use it:** `src/pokechamp/tools/damage.py` is a Python port of `calculateChampions`. `make fixtures` runs the real `@smogon/calc@0.12.0` in a `node:22.23.3-alpine` container on 79 scenarios (`tests/fixtures/damage_scenarios.json`) and records its answers. All 78 supported scenarios match roll for roll, and 68 of 68 comparable KO descriptions match word for word. There's **no Node install on your Mac**.
+- **Known gaps in our port (deliberate refusals, not silent errors):** multi-hit moves, Parental Bond, Forecast, Electromorphosis, Stakeout, Plus/Minus, Rivalry, Klutz, Protosynthesis/Quark Drive, terrain seeds, Metronome (item), and these moves: Assurance, Terrain Pulse, Fling, Triple Axel, Shell Side Arm, Steel Roller, Poltergeist, Aura Wheel, Raging Bull, Nature Power, Lash Out, Pain Split, Final Gambit, fixed-damage moves, Grav Apple, Misty Explosion, Flying Press, Nihil Light. Each raises `UnsupportedCalculation`.
+- **Bug we found in @smogon/calc:** its Lash Out check (`countBoosts(...) < 0`) can never be true, because `countBoosts` only sums positive boosts. We refuse Lash Out rather than copy the bug.
 
 ### `community_data`: pokemon-champions-data (CC BY 4.0) 🔎
 - `LICENSE`: "Creative Commons Attribution 4.0 International. Copyright (c) 2026 Pokemon Champions Data Contributors."

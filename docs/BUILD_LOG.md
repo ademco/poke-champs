@@ -85,3 +85,50 @@ Adem decided the assistant covers **only the live regulation** (M-C now) and get
    It's a yes/no fact with one correct answer that changes by regulation. A SQL lookup against a learnset table validated by Showdown's own TeamValidator is exact, cheap and citable (`run_id` → commit SHA). An LLM's memory is from mainline games, where Incineroar *can* learn it, so it would be confidently wrong.
 3. *What do the database constraints buy you if Python already validates?*
    Defense in depth. Pydantic checks the file's shape; the database enforces truths across rows: foreign keys (no learnset move that doesn't exist), CHECKs (multipliers only 0/0.5/1/2; `legal` ⇔ no ban reason), and primary keys. The Hidden Power bug got past the Python models and was caught by the primary key.
+
+---
+
+## Phase 2: deterministic tools
+
+**Built** (`src/pokechamp/tools/`)
+- `repo.py`: a `Facts` interface with two backends, `DbFacts` (Postgres, for the app) and `SnapshotFacts` (committed JSON, for fast tests). A test proves they give identical answers, damage included.
+- `stats.py`: the Champions stat formula (SP, level 50, IVs 31) and stat stages, in integer math.
+- `speed.py`: final Speed with Tailwind, Choice Scarf, weather abilities and paralysis, and move order including Trick Room.
+- `typechart.py`: effectiveness from the `type_chart` table, plus a per-type team weakness report.
+- `team_parser.py`: Showdown text → structured sets. Pasted text is treated as **data**: a nickname like "IGNORE PREVIOUS INSTRUCTIONS" is just a string, and unknown lines become warnings.
+- `legality.py`: machine-readable problem codes (`move_not_learnable:Incineroar:Knock Off`) plus human messages.
+- `damage.py`: a Python port of `@smogon/calc` 0.12.0's Champions calculator, with integer-exact rounding (`mathutil.py`).
+- Migration `002` adds move properties the calculator needs (multi-hit, secondary effects, recoil…); the export was updated to match.
+- `make fixtures`: regenerates the reference answers with Showdown's TeamValidator and the real `@smogon/calc`, both run in Docker.
+
+**Metrics**
+| | Before | After |
+|---|---|---|
+| Golden-set auto-checks graded | 10 | **27/27 pass** (only the 6 usage-stat checks remain) |
+| Damage scenarios matching @smogon/calc roll for roll | n/a | **78/78** (+1 deliberate refusal) |
+| KO descriptions matching @smogon/calc's wording | n/a | **68/68** comparable cases |
+| Teams where our legality verdict matches Showdown's validator | n/a | **26/26** (compared by problem category) |
+| Tests | 47 | **192** |
+| Mutation check: Python `round()` swapped for the game's rounding | n/a | 60 of 80 damage tests fail, as they should |
+
+**What the cross-checks caught** (each would have shipped wrong answers)
+- My first port crashed when Mold Breaker replaced the defender object (speeds were keyed by object identity).
+- KO chance was computed from full HP even for a damaged defender, and its percentages were truncated where @smogon/calc rounds.
+- Writing "Garchomp-Mega-Z @ Garchompite Z" is **legal** in Showdown. I had flagged it. Now it's accepted with the matching stone and rejected otherwise.
+- Nicknames over 18 characters are illegal. I hadn't checked that; it also flags the prompt-injection test team.
+- I had skipped item checks for illegal Pokémon. Items are holder-independent, so they're now always checked.
+- Found in @smogon/calc itself: its Lash Out condition can never fire. We refuse Lash Out instead of copying the bug.
+
+**Trade-offs**
+- *Port to Python vs call @smogon/calc via Node.* Porting means one runtime in the container, ordinary unit tests, and a plain function call for the agent. The cost is keeping it in sync. That's mitigated by fixtures from a pinned calc version: an upgrade is "bump version → `make fixtures` → see what changed".
+- *Refuse vs approximate.* When an ability, item or move needs a mechanic the port doesn't have (multi-hit, Parental Bond…), it raises `UnsupportedCalculation`. A wrong damage number stated confidently is worse than "I can't calculate that yet".
+- *Compare legality by category, not message text.* Showdown stops at the first unlearnable move, while we list all of them. Matching categories checks the substance without coupling to wording.
+- *One root cause per illegal Pokémon,* but holder-independent problems (item, nickname) are still reported.
+
+**Interview questions**
+1. *How do you know your damage calculator is right?*
+   I don't trust my reading of the formula; I diff against a reference. `make fixtures` runs the real @smogon/calc 0.12.0 on 79 scenarios, each targeting one rule (weather both ways, crits ignoring boosts, screens in singles vs doubles, Multiscale vs Mold Breaker…). All 16 rolls must match exactly. To show the tests have teeth, swapping the game's round-half-down for Python's `round()` fails 60 of them.
+2. *Why does the calculator sometimes refuse to answer?*
+   Some mechanics need state the calculator doesn't have (how many hits Scale Shot lands, whether Parental Bond's second hit applies). Returning a single-hit number for a multi-hit move would be confidently wrong, and in a grounded assistant a refusal the agent can explain beats a hallucinated number. The unsupported list is explicit and documented.
+3. *What's the point of the `Facts` interface?*
+   The tools don't care where facts come from. Unit tests use the JSON snapshot (milliseconds, no database), the app uses Postgres, and one test asserts both give the same answers. It's the repository pattern, the same idea as Spring Data, and it keeps the math testable in isolation.

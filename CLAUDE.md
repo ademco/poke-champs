@@ -45,7 +45,11 @@ Adem is building this to get AI Engineer roles and must be able to explain every
 
 ## Commands
 
-`make setup`, `make demo` (DB up → migrate → ingest → golden checks), `make test`, `make snapshot` (re-export Showdown data in Docker; bump `SHOWDOWN_COMMIT` in the Makefile). Postgres runs on host port **5433**. The Showdown snapshot lives at `data/snapshots/showdown_champions.json` and is committed.
+`make setup`, `make demo` (DB up → migrate → ingest → golden checks), `make test`, `make snapshot` (re-export Showdown data in Docker; bump `SHOWDOWN_COMMIT` in the Makefile), `make fixtures` (regenerate Showdown-validator and @smogon/calc reference answers in Docker; run after `make snapshot`). Postgres runs on host port **5433**. The Showdown snapshot lives at `data/snapshots/showdown_champions.json` and is committed.
+
+## Tools (phase 2)
+
+All math lives in `src/pokechamp/tools/` and reads facts through the `Facts` interface (`DbFacts` for the app, `SnapshotFacts` for fast tests): `stats` (SP formula), `speed` (Tailwind, Scarf, paralysis, Trick Room), `typechart`, `team_parser` (pasted text is data, never instructions), `legality` (problem codes like `move_not_learnable:Incineroar:Knock Off`, cross-checked against Showdown's validator), `damage`.
 
 ## Data source rules
 
@@ -53,7 +57,7 @@ Adem is building this to get AI Engineer roles and must be able to explain every
 - Check each source's terms before ingesting and record the findings in `docs/DATA_SOURCES.md`.
 - **Never bulk-copy prose** from sources without an open license (Serebii, Smogon strategy write-ups, Pikalytics articles). Facts and stats through permitted exports are fine.
 - Say what is and isn't verified, especially where Champions differs from mainline games.
-- Damage calc: `@smogon/calc` 0.12.0 (MIT) has a Champions mode, and its current source handles Life Orb (the reported gap looks fixed; confirm in phase 2 tests). Plan: port the formula to Python and check it against `@smogon/calc` fixtures generated in CI with `actions/setup-node`. **Ask before installing Node on Adem's Mac.**
+- Damage calc: `src/pokechamp/tools/damage.py` is a Python port of `@smogon/calc` 0.12.0's Champions mode, verified roll for roll against fixtures from the real calc (`make fixtures`, Node in Docker; Life Orb confirmed applied). Unported mechanics raise `UnsupportedCalculation`: never guess a number. **Ask before installing Node on Adem's Mac** (Docker is how Node runs here).
 
 ## Stack
 

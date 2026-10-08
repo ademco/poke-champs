@@ -16,6 +16,7 @@ from pokechamp.db.migrate import migrate
 from pokechamp.evals.auto_checks import run_all
 from pokechamp.ingest.load_showdown import TABLES, load
 from pokechamp.ingest.snapshot import load_snapshot
+from pokechamp.tools.repo import DbFacts
 
 pytestmark = pytest.mark.db
 
@@ -112,7 +113,28 @@ def test_constraints_reject_bad_rows(conn, loaded):
 
 
 def test_golden_set_structured_checks_pass(conn, loaded):
-    results = run_all(conn)
+    results = run_all(DbFacts(conn))
     failures = [r for r in results if r.status == "fail"]
     assert failures == []
-    assert sum(r.status == "pass" for r in results) >= 10
+    assert sum(r.status == "pass" for r in results) >= 27
+
+
+def test_db_and_snapshot_backends_agree(conn, loaded):
+    """The tools must give identical answers whichever backend serves the facts."""
+    from pokechamp.tools.damage import calculate_from_spec
+    from pokechamp.tools.repo import SnapshotFacts
+
+    db, snap = DbFacts(conn), SnapshotFacts()
+    for name in ("Garchomp-Mega-Z", "Incineroar", "Amoonguss", "Vivillon-Fancy"):
+        assert db.species(name) == snap.species(name)
+    for name in ("Earthquake", "Body Press", "Dragon Darts", "Terablast"):
+        assert db.move(name) == snap.move(name)
+    assert db.item("Garchompite Z") == snap.item("Garchompite Z")
+    assert db.learnset("incineroar") == snap.learnset("incineroar")
+    assert db.format("singles") == snap.format("singles")
+    spec = {
+        "attacker": {"species": "Kingambit", "nature": "Adamant", "sp": {"atk": 32}},
+        "defender": {"species": "Incineroar", "item": "Sitrus Berry"},
+        "move": "Knock Off",
+    }
+    assert calculate_from_spec(db, spec).rolls == calculate_from_spec(snap, spec).rolls
