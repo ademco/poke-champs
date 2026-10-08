@@ -10,6 +10,7 @@ Last reviewed: **2026-10-08**. Every record and chunk we store carries `source`,
 |---|---|---|---|---|
 | `showdown` | [Pokémon Showdown](https://github.com/smogon/pokemon-showdown) | MIT (verified: `LICENSE`) | ✅ approved | Primary source of facts: base stats, types, abilities, Champions legality, learnsets, items, move changes, mechanics code |
 | `smogon_calc` | [@smogon/calc](https://github.com/smogon/damage-calc) (npm 0.12.0) | MIT (verified: `LICENSE`) | ✅ approved | Reference outputs: our Python port matches 78/78 scenarios roll for roll |
+| `project_notes` | [data/corpus/notes/](../data/corpus/notes) | Project-authored; summarizes the MIT sources each note cites | ✅ approved | Mechanics explanations for RAG (SP, status, formats, Mega, move changes) |
 | `community_data` | [otterlyclueless/pokemon-champions-data](https://github.com/otterlyclueless/pokemon-champions-data) | CC BY 4.0 (verified: `LICENSE`), see caveats | 🔎 reference only | Cross-check only |
 | `bulbapedia` | [Bulbapedia](https://bulbapedia.bulbagarden.net/wiki/Bulbapedia:Copyrights) | CC BY-NC-SA 2.5 (per search results; page not opened) | ⏳ pending | Mechanics prose for RAG, with attribution |
 | `smogon_stats` | [smogon.com/stats](https://www.smogon.com/stats/) | No explicit license found yet | ⏳ pending | Monthly usage %, sets, teammates |
@@ -37,6 +38,11 @@ Last reviewed: **2026-10-08**. Every record and chunk we store carries `source`,
 - **Current snapshot:** showdown@`3065d24d698bc7f88a401c6e6d0cb42e5684d1ea` (2026-10-08). It has 1,371 species (382 legal: the 349 regulation entries plus 33 cosmetic or in-battle forms), 937 moves (515 legal), 577 items (166 legal), 317 abilities, and 17,364 learnset rows.
 - **Reproducibility check:** the Docker export and a direct Node export produced identical JSON (apart from the timestamp).
 - **Excluded on purpose:** CAP, Custom, LGPE, Future and Gigantamax placeholder entries. Real Pokémon that aren't in Champions are kept with `legal = false` and a reason, so the assistant can tell "not in this regulation" apart from "doesn't exist".
+
+### RAG corpus (phase 3)
+- **Showdown descriptions** (`data/text/*.ts`, MIT) for legal moves (515), abilities that a legal Pokémon can have (215), and legal items (166). The export uses Showdown's Champions-specific text where it exists (17 moves, 2 abilities, 1 item). For the 18 entries whose behavior the Champions mod changes *without* updated text, the chunk says so explicitly.
+- **Project notes** (`data/corpus/notes/`, 8 files): short mechanics explanations, each listing the Showdown/@smogon/calc source it was verified from in its front matter.
+- Not yet included: Bulbapedia (terms pending; the sandbox can't reach it).
 
 ### `smogon_calc`: @smogon/calc (MIT) ✅
 - License: MIT (`Copyright (c) 2013-2025 Honko and other contributors`). Latest npm version is 0.12.0; the repo was last updated 2026-10-08.

@@ -36,7 +36,7 @@ Adem is building this to get AI Engineer roles and must be able to explain every
 
 - **Formats: both** VGC doubles and singles (BSS). Every record and eval case carries `game_type`.
 - **No legacy code** from v1. Fresh repo.
-- **No Gemini.** Adem delegated the choice. Default plan: Claude Haiku 5.5 for development and the eval judge, with Sonnet 5.5 compared on the golden set. Local `bge-small-en-v1.5` (fastembed, ~130 MB weights, RAM to be measured) for embeddings, with Voyage tried as a comparison in phase 4. Nothing before phase 3 calls a model. **Still ask Adem before creating any API key or spending money.**
+- **No Gemini.** Adem delegated the choice. Default plan: Claude Haiku 5.5 for development and the eval judge, with Sonnet 5.5 compared on the golden set. Local `bge-small-en-v1.5` via fastembed for embeddings (implemented in phase 3; peak RAM measured in CI), with Voyage tried as a comparison in phase 4. Nothing before phase 3 calls a model. **Still ask Adem before creating any API key or spending money.**
 - **Scope: current regulation only** (Adem, 2026-10-08). See the core design principle above.
 - **Rubric:** Adem delegated it; `docs/RUBRIC.md` as drafted is the working version. Calibrate it against ~10 of Adem's hand grades in phase 5.
 - **Repo is public.** Mind attribution and licenses (Bulbapedia text stays out of git; it lives only in the database).
@@ -50,6 +50,10 @@ Adem is building this to get AI Engineer roles and must be able to explain every
 ## Tools (phase 2)
 
 All math lives in `src/pokechamp/tools/` and reads facts through the `Facts` interface (`DbFacts` for the app, `SnapshotFacts` for fast tests): `stats` (SP formula), `speed` (Tailwind, Scarf, paralysis, Trick Room), `typechart`, `team_parser` (pasted text is data, never instructions), `legality` (problem codes like `move_not_learnable:Incineroar:Knock Off`, cross-checked against Showdown's validator), `damage`.
+
+## RAG (phase 3)
+
+`src/pokechamp/rag/`: `corpus` (Showdown descriptions of legal moves/abilities/items + `data/corpus/notes/*.md`; entity text deliberately omits tool-owned numbers; descriptions whose behavior changed in Champions without Champions-specific text carry a warning), `chunking` (heading-aware, ~160-word cap, 1-sentence overlap, "Title > Section" prefix), `embeddings` (`FastEmbedEmbedder` = bge-small-en-v1.5, 384-d, ONNX/CPU; `HashingEmbedder` = test double only), `index` (atomic load into `documents`/`chunks` with pgvector HNSW + generated tsvector), `search` (cosine top-k, regulation-filtered, `hnsw.iterative_scan`). The cloud sandbox can't download the model (Hugging Face blocked); CI caches it and runs the `model`-marked tests with `REQUIRE_MODEL=1`. Mechanics notes must cite the code they were verified from.
 
 ## Data source rules
 

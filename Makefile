@@ -24,13 +24,19 @@ migrate:  ## apply SQL migrations
 ingest:  ## load the Showdown snapshot into Postgres (idempotent)
 	$(PY) -m pokechamp.ingest.load_showdown
 
+index:  ## build the RAG index (chunk + embed + store); first run downloads bge-small (~130 MB)
+	$(PY) -m pokechamp.rag.index
+
+search:  ## try a question against the RAG index: make search Q="how long does sleep last?"
+	$(PY) -m pokechamp.rag.search "$(Q)"
+
 checks:  ## run golden-set auto-checks against the database
 	$(PY) -m pokechamp.evals.auto_checks
 
 test:  ## lint + format check + all tests
 	.venv/bin/ruff check . && .venv/bin/ruff format --check . && .venv/bin/pytest
 
-demo: db-up migrate ingest checks  ## everything from zero: DB up, schema, data, checks
+demo: db-up migrate ingest index checks  ## everything from zero: DB up, schema, data, RAG index, checks
 
 SHOWDOWN_DIR := .cache/showdown
 
@@ -50,4 +56,4 @@ fixtures:  ## regenerate reference answers: Showdown validator + @smogon/calc (N
 	  sh -c 'npm init -y >/dev/null && npm i --silent @smogon/calc@$(SMOGON_CALC_VERSION) && \
 	  NODE_PATH=/work/.cache/calc/node_modules node /work/tools/calc_fixtures/generate.js /work'
 
-.PHONY: help setup db-up db-down migrate ingest checks test demo snapshot fixtures
+.PHONY: help setup db-up db-down migrate ingest index search checks test demo snapshot fixtures

@@ -14,7 +14,8 @@ Needs Python 3.12, Docker and git (no Node; it only runs inside Docker).
 
 ```bash
 make setup   # .venv + dependencies
-make demo    # Postgres up -> schema -> load Showdown data -> golden-set checks
+make demo    # Postgres up -> schema -> Showdown data -> RAG index -> golden-set checks
+make search Q="how long does sleep last?"   # try the vector search
 make test    # lint + tests (DB tests run when Postgres is up)
 make help    # everything else
 ```

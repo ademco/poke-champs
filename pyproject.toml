@@ -9,6 +9,9 @@ description = "Grounded RAG + agent assistant for Pokémon Champions (VGC 2026)"
 requires-python = ">=3.12"
 # Exact pins: reproducible CI. Versions checked with `pip index versions` on 2026-10-08.
 dependencies = [
+    "fastembed==0.9.0",  # local embeddings via ONNX runtime; no PyTorch (~180 MB installed)
+    "numpy==2.5.3",
+    "pgvector==0.5.0",  # psycopg adapter for the vector type
     "psycopg[binary]==3.3.6",
     "pydantic==2.14.0",
     "pyyaml==6.0.3",
@@ -29,7 +32,10 @@ pokechamp = ["db/migrations/*.sql"]
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 addopts = "-q"
-markers = ["db: needs a running Postgres (DATABASE_URL); skipped if unreachable"]
+markers = [
+    "db: needs a running Postgres (DATABASE_URL); skipped if unreachable",
+    "model: needs the bge-small embedding model download; skipped if unavailable",
+]
 
 [tool.ruff]
 line-length = 100

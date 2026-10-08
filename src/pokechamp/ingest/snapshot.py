@@ -81,6 +81,9 @@ class Move(_Row):
     target: str
     flags: list[str]
     short_desc: str | None
+    desc: str | None
+    behavior_changed: bool
+    champions_text: bool
     legal: bool
     multihit: list[int] | None
     has_secondary: bool
@@ -96,6 +99,9 @@ class Ability(_Row):
     id: str
     name: str
     short_desc: str | None
+    desc: str | None
+    behavior_changed: bool
+    champions_text: bool
     legal: bool
 
 
@@ -103,6 +109,9 @@ class Item(_Row):
     id: str
     name: str
     short_desc: str | None
+    desc: str | None
+    behavior_changed: bool
+    champions_text: bool
     mega_stone: dict[str, str] | None
     legal: bool
 
