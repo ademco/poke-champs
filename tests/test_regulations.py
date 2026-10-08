@@ -2,7 +2,7 @@ from datetime import UTC, datetime
 
 import pytest
 
-from pokechamp.regulations import REGULATIONS, current_regulation, regulation_on
+from pokechamp.regulations import REGULATIONS, current_regulation, is_supported, regulation_on
 
 
 def at(*args: int) -> datetime:
@@ -48,3 +48,10 @@ def test_regulations_do_not_overlap():
 def test_showdown_format_ids_cover_both_game_types_where_known():
     for code in ("M-B", "M-C"):
         assert set(REGULATIONS[code].showdown_formats) == {"doubles", "singles"}
+
+
+def test_only_the_live_regulation_is_supported():
+    now = at(2026, 10, 8)
+    assert is_supported("M-C", now)
+    assert not is_supported("M-B", now)
+    assert not is_supported("M-A", now)

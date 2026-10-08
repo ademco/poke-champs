@@ -1,8 +1,13 @@
 """Known Pokémon Champions regulations and how to pick the current one.
 
-Every record and chunk in this project is tagged with a regulation code, and
-retrieval defaults to the current regulation. This module is the single place
-that knows which regulation is current, so nothing else hardcodes "M-C".
+Scope decision (2026-10-08): the assistant supports only the live regulation.
+Past regulations are listed here for their dates alone, so it can say "M-B
+ended on 2026-09-09; I only cover M-C". We never ingest data for them.
+
+Every record and chunk is still tagged with its regulation. That tag makes the
+switch to a new regulation safe: load the new data, then delete rows whose tag
+no longer matches the current regulation. This module is the single place that
+knows which regulation is current, so nothing else hardcodes "M-C".
 
 Dates were verified on 2026-10-08 (see docs/DATA_SOURCES.md). Re-verify when a
 new regulation is announced and add it here.
@@ -63,3 +68,8 @@ def regulation_on(when: datetime) -> Regulation:
 
 def current_regulation(now: datetime | None = None) -> Regulation:
     return regulation_on(now or datetime.now(UTC))
+
+
+def is_supported(code: str, now: datetime | None = None) -> bool:
+    """Only the live regulation is supported; anything else gets a polite refusal."""
+    return code == current_regulation(now).code

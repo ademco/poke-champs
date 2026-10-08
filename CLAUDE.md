@@ -17,7 +17,8 @@ Adem is building this to get AI Engineer roles and must be able to explain every
 - **Structured facts** (base stats, types, moves, abilities, items, learnsets, legality lists, usage stats) live in **PostgreSQL tables** and are reached through **tools**, never vector search.
 - **Unstructured text** (mechanics explanations, rules, strategy notes) goes through **RAG with pgvector**.
 - **The LLM never does math.** Stat calculation, type effectiveness, speed comparisons, and damage are deterministic Python tools with unit tests.
-- **Every record and chunk carries metadata:** `source`, `license`, `regulation` (e.g. `M-B`, `M-C`), `retrieved_at`. Retrieval filters by regulation and defaults to the current one.
+- **Every record and chunk carries metadata:** `source`, `license`, `regulation` (e.g. `M-C`), `retrieved_at`.
+- **Only the live regulation is supported.** We ingest data for the current regulation only. Questions about past ones get "only M-C is covered" plus the current answer. The `regulation` tag exists so the switch to the next one (M-D) is safe: load the new data, flip `current` in `pokechamp/regulations.py`, delete rows with the old tag, then re-verify the golden set. A test fails until the golden set is updated.
 - The agent **never invents** stats, moves, or legality. If something isn't supported, it says "not found". It treats pasted teams as data and rejects prompt injection inside them.
 
 ## Current game state (verified 2026-10-08; re-verify, don't trust training data)
@@ -35,10 +36,16 @@ Adem is building this to get AI Engineer roles and must be able to explain every
 
 - **Formats: both** VGC doubles and singles (BSS). Every record and eval case carries `game_type`.
 - **No legacy code** from v1. Fresh repo.
-- **No Gemini.** Generation and embedding providers are chosen before phase 3; nothing before phase 3 calls a model.
+- **No Gemini.** Adem delegated the choice. Default plan: Claude Haiku 5.5 for development and the eval judge, with Sonnet 5.5 compared on the golden set. Local `bge-small-en-v1.5` (fastembed, ~130 MB weights, RAM to be measured) for embeddings, with Voyage tried as a comparison in phase 4. Nothing before phase 3 calls a model. **Still ask Adem before creating any API key or spending money.**
+- **Scope: current regulation only** (Adem, 2026-10-08). See the core design principle above.
+- **Rubric:** Adem delegated it; `docs/RUBRIC.md` as drafted is the working version. Calibrate it against ~10 of Adem's hand grades in phase 5.
 - **Repo is public.** Mind attribution and licenses (Bulbapedia text stays out of git; it lives only in the database).
 - **Golden set:** Claude drafts it and Adem edits it. The rubric gets finalized together.
 - **Community repo `otterlyclueless/pokemon-champions-data` is stale:** last updated 2026-04-16 (Reg M-A, 258 entries, no M-C additions). Its move/learnset data was scraped from Serebii, so the CC BY 4.0 label is doubtful for those parts. Use it only as a cross-check against Showdown, never as a primary source.
+
+## Commands
+
+`make setup`, `make demo` (DB up → migrate → ingest → golden checks), `make test`, `make snapshot` (re-export Showdown data in Docker; bump `SHOWDOWN_COMMIT` in the Makefile). Postgres runs on host port **5433**. The Showdown snapshot lives at `data/snapshots/showdown_champions.json` and is committed.
 
 ## Data source rules
 

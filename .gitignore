@@ -15,6 +15,7 @@ htmlcov/
 
 # Local data downloads (re-fetched by ingestion scripts, too big for git)
 data/raw/
+.cache/
 
 # OS / editors
 .DS_Store

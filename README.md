@@ -10,10 +10,13 @@ Structured facts (stats, legality, learnsets, usage) live in PostgreSQL and are 
 
 ## Quick start
 
+Needs Python 3.12, Docker and git (no Node; it only runs inside Docker).
+
 ```bash
-python3.12 -m venv .venv && source .venv/bin/activate
-pip install -e ".[dev]"
-pytest
+make setup   # .venv + dependencies
+make demo    # Postgres up -> schema -> load Showdown data -> golden-set checks
+make test    # lint + tests (DB tests run when Postgres is up)
+make help    # everything else
 ```
 
 ## Docs
