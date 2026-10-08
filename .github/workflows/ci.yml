@@ -70,14 +70,15 @@ jobs:
         run: |
           /usr/bin/time -v python -m pokechamp.rag.index 2> time.log
           grep -E "Maximum resident set size|Elapsed \(wall clock\)" time.log
-          python -m pokechamp.rag.search -k 3 "How long does sleep last in Champions?"
+          python -m pokechamp.rag.search -k 3 --mode vector "How long does sleep last in Champions?"
 
       # Phase 4: every retrieval configuration on the labelled question set.
-      # The table also goes to the run's summary page.
+      # The table also goes to the run's summary page. The gate fails CI if the
+      # default (hybrid) config's Recall@5 drops below 0.85 (measured: 0.90).
       - name: Retrieval eval (real models) and memory
         run: |
-          /usr/bin/time -v python -m pokechamp.evals.retrieval --json retrieval.json \
-            > retrieval.md 2> time.log || { cat time.log; exit 1; }
+          /usr/bin/time -v python -m pokechamp.evals.retrieval --json retrieval.json --fail-under 0.85 \
+            > retrieval.md 2> time.log || { cat retrieval.md time.log; exit 1; }
           cat retrieval.md
           grep -E "Maximum resident set size|Elapsed \(wall clock\)" time.log
           cat retrieval.md >> "$GITHUB_STEP_SUMMARY"

@@ -47,6 +47,8 @@ from pokechamp.regulations import current_regulation
 
 RETRIEVAL_SET = Path(__file__).resolve().parents[3] / "evals" / "retrieval_set.yaml"
 KS = (1, 3, 5, 10)
+# The configuration the app uses (see rag/search.py: DEFAULT_MODE) is the one CI gates.
+GATED_CONFIG = "hybrid (vector + IDF keyword, RRF)"
 DEPTH = 30  # chunks fetched per question; enough to rank 10 distinct documents
 
 
@@ -216,6 +218,11 @@ def main() -> None:
     parser.add_argument("--embedder", default="fastembed", choices=["fastembed", "hashing"])
     parser.add_argument("--no-rerank", action="store_true")
     parser.add_argument("--json", type=Path, help="also write the summary as JSON")
+    parser.add_argument(
+        "--fail-under",
+        type=float,
+        help=f"exit 1 if {GATED_CONFIG!r} Recall@5 is below this (CI regression gate)",
+    )
     args = parser.parse_args()
 
     embedder = get_embedder(args.embedder)
@@ -233,6 +240,13 @@ def main() -> None:
         results = run(conn, embedder, reranker, queries)
         ann = ann_overlap(conn, embedder, queries)
     print(format_report(results, queries, ann))
+    if args.fail_under is not None:
+        gated = next(r for r in results if r.name == GATED_CONFIG)
+        if gated.recall(5) < args.fail_under:
+            raise SystemExit(
+                f"FAIL: {GATED_CONFIG} Recall@5 {gated.recall(5):.3f} < {args.fail_under}"
+            )
+        print(f"\ngate passed: {GATED_CONFIG} Recall@5 {gated.recall(5):.3f} >= {args.fail_under}")
     if args.json:
         args.json.write_text(
             json.dumps({"results": [r.summary() for r in results], "ann_overlap": ann}, indent=2)

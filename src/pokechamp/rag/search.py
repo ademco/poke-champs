@@ -14,7 +14,11 @@ Four ways to find chunks for a question, all filtered to one regulation:
                   question and each chunk *together* (more accurate, slower,
                   so it only sees the top few dozen candidates).
 
-Phase 4 measures each one on evals/retrieval_set.yaml (pokechamp.evals.retrieval).
+Phase 4 measured each one on evals/retrieval_set.yaml (pokechamp.evals.retrieval,
+62 questions, real models, CI): Recall@5 vector 0.82, keyword 0.76, hybrid 0.90,
+hybrid + rerank 0.92 at ~20x the latency (~1 s per query on CPU). Default: hybrid.
+The reranker stays available; phase 5 decides with answer-quality evals whether
+its small top-5 gain is worth the second.
 
 Filter + approximate index caveat: HNSW finds nearest neighbours first and the
 WHERE clause filters afterwards, so a selective filter can leave fewer than k
@@ -42,6 +46,8 @@ from pokechamp.regulations import current_regulation
 RRF_K = 60
 # How many results each retriever contributes before fusion / reranking.
 CANDIDATES = 40
+# What the app uses unless told otherwise; chosen from the phase-4 metrics above.
+DEFAULT_MODE = "hybrid"
 
 
 @dataclass(frozen=True)
@@ -222,7 +228,7 @@ def main() -> None:
     parser.add_argument("query")
     parser.add_argument("-k", type=int, default=5)
     modes = ["vector", "keyword", "hybrid", "rerank"]
-    parser.add_argument("--mode", default="hybrid", choices=modes)
+    parser.add_argument("--mode", default=DEFAULT_MODE, choices=modes)
     parser.add_argument("--embedder", default="fastembed", choices=["fastembed", "hashing"])
     args = parser.parse_args()
     with connect() as conn:
