@@ -37,3 +37,10 @@ One section per phase: what was built, key trade-offs, metrics, and interview pr
    Usage stats change every month. Freezing them in the test would make the test wrong, not the system. The case stores the *check* (top-N from the usage table for the right format), so the expected value is always current.
 3. *How did you decide which data sources to trust?*
    License first (can we legally store it?), then authority (is it the simulator's own code or a scrape?), then freshness. Showdown is MIT and *is* the rules engine, so it's primary. The CC BY community repo is stale and partly derived from a non-licensed site, so it's only a cross-check.
+
+### Phase 0 follow-up: scope = current regulation only
+
+Adem decided the assistant covers **only the live regulation** (M-C now) and gets updated when M-D launches. Changes:
+- The golden set no longer expects M-B answers. Questions *about* M-B stay as inputs (people will ask), but the expected behavior is "only M-C is covered" plus the M-C answer. 4 cases were reworded and one M-B comparison case was replaced with an M-C legality case.
+- `regulations.is_supported()`, plus a test that fails whenever a golden case targets a non-live regulation. When M-D is added, CI goes red until the set is re-verified. That's intentional: it's the reminder.
+- We still tag every record with its regulation. *Interview angle:* "Why tag if you only support one?" Because the switchover is a data migration: load the new data, flip `current`, delete the old tag. Without tags you can't tell stale rows from fresh ones, and stale legality data is exactly how an assistant ends up confidently wrong.

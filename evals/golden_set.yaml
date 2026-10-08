@@ -141,20 +141,17 @@ cases:
     expected_behavior: answer
     expected_answer: >-
       It becomes Garchomp-Mega-Z: pure Dragon type (loses Ground), ability
-      Levitate, base stats 108/130/85/141/85/151. It is new in Regulation M-C and
-      was not legal in M-B. (Regular Garchompite gives Garchomp-Mega instead.)
+      Levitate, base stats 108/130/85/141/85/151. Legal in M-C. (Regular
+      Garchompite gives Garchomp-Mega instead.)
     must_include: ["Dragon", "Levitate", "151"]
     sources:
       - {source: showdown, ref: "data/pokedex.ts garchompmegaz"}
       - {source: showdown, ref: "data/items.ts garchompitez"}
-      - {source: showdown, ref: "data/mods/champions*/formats-data.ts (legal M-C, not M-B)"}
+      - {source: showdown, ref: "data/mods/champions/formats-data.ts garchompmegaz"}
     auto_checks:
       - kind: pokemon_legal
         args: {species: Garchomp-Mega-Z, regulation: M-C}
         expected: true
-      - kind: pokemon_legal
-        args: {species: Garchomp-Mega-Z, regulation: M-B}
-        expected: false
 
   - id: mech-010
     category: mechanics
@@ -171,17 +168,20 @@ cases:
     category: mechanics
     game_type: any
     regulation: M-C
-    input: "What did Regulation M-C add compared to M-B?"
+    input: "Can I use Rillaboom in ranked right now? What does its ability do for doubles?"
     expected_behavior: answer
     expected_answer: >-
-      M-C (from 2026-09-09) removed nothing and added 23 new species plus Alolan
-      Persian, and 6 new Mega Evolutions: Absol-Mega-Z, Garchomp-Mega-Z,
-      Lucario-Mega-Z, Salamence-Mega, Golisopod-Mega, Baxcalibur-Mega. Examples of
-      new species: Rillaboom, Cinderace, Inteleon, Baxcalibur, Salamence.
-    must_include: ["Rillaboom", "Garchomp-Mega-Z"]
+      Yes, Rillaboom is legal in the current regulation (M-C). Its hidden
+      ability Grassy Surge sets Grassy Terrain on switch-in, which powers up
+      Grass moves and lets Grassy Glide move first.
+    must_include: ["M-C", "Grassy Surge"]
     sources:
-      - {source: showdown, ref: "diff of data/mods/champions vs championsregmb formats-data.ts"}
-    notes: "News sites quote 22/24/29/34 new Pokémon; they count forms differently."
+      - {source: showdown, ref: "data/mods/champions/formats-data.ts rillaboom"}
+      - {source: showdown, ref: "data/pokedex.ts rillaboom (abilities)"}
+    auto_checks:
+      - kind: pokemon_legal
+        args: {species: Rillaboom, regulation: M-C}
+        expected: true
 
   - id: mech-012
     category: mechanics
@@ -269,17 +269,20 @@ cases:
   - id: meta-006
     category: meta
     game_type: doubles
-    regulation: M-B
+    regulation: M-C
     input: "What was the most used Pokémon in Regulation M-B doubles?"
-    expected_behavior: answer
-    expected_answer: "The #1 species from M-B doubles usage data, clearly labelled as M-B (a past regulation)."
-    must_include: ["M-B"]
+    expected_behavior: correct
+    expected_answer: >-
+      M-B has ended; the assistant only covers the current regulation (M-C).
+      It says so, then offers the current #1 from M-C doubles usage instead of
+      guessing about M-B.
+    must_include: ["M-C"]
     sources:
-      - {source: smogon_stats, ref: "chaos/{M-B month}/gen9championsvgc2026regmb"}
+      - {source: smogon_stats, ref: "chaos/{latest}/gen9championsvgc2026regmc"}
     auto_checks:
       - kind: usage_top
-        args: {field: species, n: 1, format: gen9championsvgc2026regmb}
-    notes: "Tests that retrieval honours an explicitly requested non-current regulation."
+        args: {field: species, n: 1, format: gen9championsvgc2026regmc}
+    notes: "Scope decision (2026-10-08): only the live regulation is supported."
 
   # ───────────────────────── TEAM ANALYSIS ─────────────────────────
   - id: team-001
@@ -696,7 +699,7 @@ cases:
     regulation: M-C
     input: "Is Amoonguss good in M-C doubles?"
     expected_behavior: correct
-    expected_answer: "Amoonguss is not available in Pokémon Champions (not legal in M-A, M-B or M-C), so it can't be used."
+    expected_answer: "Amoonguss is not available in the current regulation (M-C), so it can't be used."
     must_include: ["not"]
     sources:
       - {source: showdown, ref: "data/mods/champions/formats-data.ts amoonguss"}
@@ -773,17 +776,19 @@ cases:
   - id: trick-007
     category: trick
     game_type: doubles
-    regulation: M-B
+    regulation: M-C
     input: "Can I use Mega Garchomp-Z in Regulation M-B?"
     expected_behavior: correct
-    expected_answer: "No. Garchomp-Mega-Z (Garchompite Z) became legal in M-C; it was not available in M-B."
-    must_include: ["M-C", "not"]
+    expected_answer: >-
+      M-B is over; the assistant only covers the current regulation, M-C. In
+      M-C, Garchomp-Mega-Z is legal (hold Garchompite Z).
+    must_include: ["M-C"]
     sources:
-      - {source: showdown, ref: "data/mods/championsregmb/formats-data.ts (garchompmegaz Illegal)"}
+      - {source: showdown, ref: "data/mods/champions/formats-data.ts garchompmegaz"}
     auto_checks:
       - kind: pokemon_legal
-        args: {species: Garchomp-Mega-Z, regulation: M-B}
-        expected: false
+        args: {species: Garchomp-Mega-Z, regulation: M-C}
+        expected: true
 
   - id: trick-008
     category: trick

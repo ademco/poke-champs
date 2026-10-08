@@ -10,7 +10,7 @@ from collections import Counter
 import pytest
 
 from pokechamp.evals.golden_set import load_golden_set
-from pokechamp.regulations import REGULATIONS
+from pokechamp.regulations import REGULATIONS, current_regulation
 from pokechamp.sources import SOURCES
 
 
@@ -80,3 +80,13 @@ def test_most_cases_are_auto_checkable(golden):
     # LLM-judge-only grading. Keep at least 60% auto-checkable.
     checkable = sum(1 for c in golden.cases if c.auto_checks)
     assert checkable / len(golden.cases) >= 0.6
+
+
+def test_every_case_targets_the_live_regulation(golden):
+    # Scope decision: only the current regulation is supported. Questions about
+    # past regulations are still allowed as inputs, but the expected answer is
+    # given for the current one. When a new regulation goes live, this test
+    # fails until the golden set is re-verified against it - which is the point.
+    live = current_regulation().code
+    stale = [c.id for c in golden.cases if c.regulation != live]
+    assert stale == [], f"re-verify these cases for {live}: {stale}"
