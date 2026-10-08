@@ -1,0 +1,22 @@
+# Python
+.venv/
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# Secrets: never commit real keys. .env.example is the committed template.
+.env
+.env.*
+!.env.example
+
+# Local data downloads (re-fetched by ingestion scripts, too big for git)
+data/raw/
+
+# OS / editors
+.DS_Store
+.idea/
+.vscode/

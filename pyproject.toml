@@ -1,0 +1,35 @@
+[build-system]
+requires = ["setuptools>=69"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "pokechamp"
+version = "0.0.1"
+description = "Grounded RAG + agent assistant for Pokémon Champions (VGC 2026)"
+requires-python = ">=3.12"
+# Exact pins: reproducible CI. Versions checked with `pip index versions` on 2026-10-08.
+dependencies = [
+    "pydantic==2.14.0",
+    "pyyaml==6.0.3",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest==9.1.1",
+    "ruff==0.16.10",
+]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+
+[tool.ruff.lint]
+# E/F: pyflakes + pycodestyle errors; I: import order; B: likely bugs; UP: modern syntax
+select = ["E", "F", "I", "B", "UP"]
