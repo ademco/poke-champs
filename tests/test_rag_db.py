@@ -12,7 +12,8 @@ from pokechamp.db.migrate import migrate
 from pokechamp.rag.corpus import build_corpus
 from pokechamp.rag.embeddings import HashingEmbedder
 from pokechamp.rag.index import load, prepare
-from pokechamp.rag.search import vector_search
+from pokechamp.rag.rerank import OverlapReranker
+from pokechamp.rag.search import hybrid_search, keyword_search, reranked_search, vector_search
 
 pytestmark = pytest.mark.db
 TEST_DB = "pokechamp_rag_test"
@@ -105,3 +106,25 @@ def test_tsvector_is_generated_for_keyword_search(conn, indexed):
         "SELECT doc_id FROM chunks WHERE tsv @@ plainto_tsquery('english', 'Terastallization')"
     ).fetchall()
     assert ("notes:mega-evolution",) in hit
+
+
+def test_keyword_search_matches_any_word_and_finds_rare_names(conn, indexed):
+    # OR semantics: most of these words appear in no chunk, the name still wins.
+    hits = keyword_search(conn, "what exactly does kowtow cleave do in battle", k=3)
+    assert hits[0].doc_id == "showdown:move:kowtowcleave"
+    assert keyword_search(conn, "the and of", k=3) == []  # only stopwords: no query
+
+
+def test_hybrid_contains_the_best_of_both(conn, indexed):
+    _, embedder = indexed
+    q = "kowtow cleave"
+    hybrid = {h.chunk_id for h in hybrid_search(conn, embedder, q, k=10)}
+    assert keyword_search(conn, q, k=1)[0].chunk_id in hybrid
+    assert vector_search(conn, embedder, q, k=1)[0].chunk_id in hybrid
+
+
+def test_reranked_search_returns_k_cited_hits(conn, indexed):
+    _, embedder = indexed
+    hits = reranked_search(conn, embedder, OverlapReranker(), "sleep turns champions", k=4)
+    assert len(hits) == 4
+    assert all(h.regulation == "M-C" and h.source and h.ref for h in hits)

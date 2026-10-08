@@ -1,0 +1,80 @@
+# Retrieval eval set: questions labelled with the document(s) that answer them.
+#
+# Labels are at document level (doc_id), not chunk level, so they stay valid
+# when chunking parameters change. A retriever "hits" if any relevant document
+# appears in its top k. Several ids = any of them is a correct answer.
+#
+# kinds:
+#   notes      - answered by a project mechanics note
+#   paraphrase - describes a move/ability/item without naming it (tests meaning)
+#   keyword    - exact names, often unusual words (tests lexical match)
+#   named      - "what does X do" (both should work)
+# Written to avoid copying chunk wording, so keyword search gets no free wins.
+version: 1
+queries:
+  # ── notes ──
+  - {id: n01, kind: notes, query: "How do stat points work in Champions?", relevant: [notes:stat-points]}
+  - {id: n02, kind: notes, query: "What replaced EVs?", relevant: [notes:stat-points]}
+  - {id: n03, kind: notes, query: "What's the most I can invest in a single stat?", relevant: [notes:stat-points]}
+  - {id: n04, kind: notes, query: "Can I customise IVs?", relevant: [notes:stat-points]}
+  - {id: n05, kind: notes, query: "In ranked doubles how many of my six do I actually use?", relevant: [notes:battle-format]}
+  - {id: n06, kind: notes, query: "For singles, how many Pokémon go into battle?", relevant: [notes:battle-format]}
+  - {id: n07, kind: notes, query: "Can two of my Pokémon hold the same item?", relevant: [notes:battle-format]}
+  - {id: n08, kind: notes, query: "Are mythical Pokémon allowed in ranked?", relevant: [notes:battle-format]}
+  - {id: n09, kind: notes, query: "How often does paralysis stop a Pokémon from moving?", relevant: [notes:status-conditions]}
+  - {id: n10, kind: notes, query: "How many turns does sleep last?", relevant: [notes:status-conditions]}
+  - {id: n11, kind: notes, query: "Can a Pokémon stay frozen forever?", relevant: [notes:status-conditions]}
+  - {id: n12, kind: notes, query: "Does a burn still cut physical damage?", relevant: [notes:status-conditions]}
+  - {id: n13, kind: notes, query: "Is Terastallization in Champions?", relevant: [notes:mega-evolution]}
+  - {id: n14, kind: notes, query: "How many of my Pokémon can Mega Evolve in one battle?", relevant: [notes:mega-evolution]}
+  - {id: n15, kind: notes, query: "Can a Mega also hold Life Orb?", relevant: [notes:mega-evolution]}
+  - {id: n16, kind: notes, query: "Can I Dynamax?", relevant: [notes:mega-evolution]}
+  - {id: n17, kind: notes, query: "Which moves got stronger in Champions?", relevant: [notes:move-changes]}
+  - {id: n18, kind: notes, query: "Did Moonblast get nerfed?", relevant: [notes:move-changes, showdown:move:moonblast]}
+  - {id: n19, kind: notes, query: "How much PP does Protect have in a battle?", relevant: [notes:move-changes]}
+  - {id: n20, kind: notes, query: "What type is Growth now?", relevant: [notes:move-changes, showdown:move:growth]}
+  - {id: n21, kind: notes, query: "Do moves that hit both opponents do less damage?", relevant: [notes:doubles-damage-modifiers]}
+  - {id: n22, kind: notes, query: "How much does Reflect cut damage in doubles?", relevant: [notes:doubles-damage-modifiers, showdown:move:reflect]}
+  - {id: n23, kind: notes, query: "How does Trick Room change who moves first?", relevant: [notes:speed-and-turn-order, showdown:move:trickroom]}
+  - {id: n24, kind: notes, query: "What happens when two Pokémon have the same Speed?", relevant: [notes:speed-and-turn-order]}
+  - {id: n25, kind: notes, query: "When did Regulation M-C start?", relevant: [notes:regulation-m-c]}
+  - {id: n26, kind: notes, query: "Which Mega Evolutions were added this regulation?", relevant: [notes:regulation-m-c]}
+  - {id: n27, kind: notes, query: "What's new in the current regulation?", relevant: [notes:regulation-m-c]}
+  # ── paraphrase (no names) ──
+  - {id: p01, kind: paraphrase, query: "ability that weakens the opponents' Attack as soon as it enters", relevant: [showdown:ability:intimidate]}
+  - {id: p02, kind: paraphrase, query: "item that boosts damage but hurts the holder after each attack", relevant: [showdown:item:lifeorb]}
+  - {id: p03, kind: paraphrase, query: "item that lets you survive a one-hit KO from full health", relevant: [showdown:item:focussash]}
+  - {id: p04, kind: paraphrase, query: "berry that heals when HP gets low", relevant: [showdown:item:sitrusberry, showdown:item:oranberry]}
+  - {id: p05, kind: paraphrase, query: "attack that only works on the first turn and makes the target flinch", relevant: [showdown:move:fakeout]}
+  - {id: p06, kind: paraphrase, query: "move that doubles my team's Speed for a few turns", relevant: [showdown:move:tailwind]}
+  - {id: p07, kind: paraphrase, query: "move that draws the opponents' attacks onto the user", relevant: [showdown:move:followme, showdown:move:ragepowder]}
+  - {id: p08, kind: paraphrase, query: "protect my whole side from attacks that hit multiple Pokémon", relevant: [showdown:move:wideguard]}
+  - {id: p09, kind: paraphrase, query: "ability that restores health when switching out", relevant: [showdown:ability:regenerator]}
+  - {id: p10, kind: paraphrase, query: "ability that summons rain on entry", relevant: [showdown:ability:drizzle]}
+  - {id: p11, kind: paraphrase, query: "attack whose power depends on how heavy the target is", relevant: [showdown:move:lowkick, showdown:move:grassknot, showdown:move:heavyslam, showdown:move:heatcrash]}
+  - {id: p12, kind: paraphrase, query: "item that damages attackers who make contact", relevant: [showdown:item:rockyhelmet]}
+  - {id: p13, kind: paraphrase, query: "ability that lets attacks ignore the target's ability", relevant: [showdown:ability:moldbreaker]}
+  - {id: p14, kind: paraphrase, query: "attack that hits and then switches the user out", relevant: [showdown:move:uturn, showdown:move:voltswitch, showdown:move:flipturn]}
+  - {id: p15, kind: paraphrase, query: "status move that burns the target", relevant: [showdown:move:willowisp]}
+  - {id: p16, kind: paraphrase, query: "ability that makes it immune to Ground moves", relevant: [showdown:ability:levitate, showdown:ability:eelevate]}
+  - {id: p17, kind: paraphrase, query: "ability that powers up weak moves", relevant: [showdown:ability:technician]}
+  - {id: p18, kind: paraphrase, query: "berry that cures any status condition once", relevant: [showdown:item:lumberry]}
+  - {id: p19, kind: paraphrase, query: "ability that doubles Speed after losing its held item", relevant: [showdown:ability:unburden]}
+  - {id: p20, kind: paraphrase, query: "priority move that only works if the target is attacking", relevant: [showdown:move:suckerpunch]}
+  # ── keyword (exact, unusual names) ──
+  - {id: k01, kind: keyword, query: "Psyshield Bash", relevant: [showdown:move:psyshieldbash]}
+  - {id: k02, kind: keyword, query: "Kowtow Cleave", relevant: [showdown:move:kowtowcleave]}
+  - {id: k03, kind: keyword, query: "Garchompite Z", relevant: [showdown:item:garchompitez]}
+  - {id: k04, kind: keyword, query: "Mega Sol", relevant: [showdown:ability:megasol]}
+  - {id: k05, kind: keyword, query: "Supreme Overlord", relevant: [showdown:ability:supremeoverlord]}
+  - {id: k06, kind: keyword, query: "Dire Claw", relevant: [showdown:move:direclaw]}
+  - {id: k07, kind: keyword, query: "Electro Shot", relevant: [showdown:move:electroshot]}
+  - {id: k08, kind: keyword, query: "Snap Trap", relevant: [showdown:move:snaptrap, notes:move-changes]}
+  # ── named ──
+  - {id: d01, kind: named, query: "What does Intimidate do?", relevant: [showdown:ability:intimidate]}
+  - {id: d02, kind: named, query: "What does Life Orb do?", relevant: [showdown:item:lifeorb]}
+  - {id: d03, kind: named, query: "What does Knock Off do?", relevant: [showdown:move:knockoff]}
+  - {id: d04, kind: named, query: "What does Encore do?", relevant: [showdown:move:encore]}
+  - {id: d05, kind: named, query: "Does Weather Ball change type?", relevant: [showdown:move:weatherball]}
+  - {id: d06, kind: named, query: "What does Friend Guard do?", relevant: [showdown:ability:friendguard, notes:doubles-damage-modifiers]}
+  - {id: d07, kind: named, query: "How much does Choice Scarf boost Speed?", relevant: [showdown:item:choicescarf, notes:speed-and-turn-order]}
