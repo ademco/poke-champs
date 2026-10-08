@@ -1,0 +1,23 @@
+# Local Postgres + pgvector. Sized for an 8 GB Mac: Postgres itself needs
+# little memory for a ~20k-row dataset, so cap the container at 256 MB.
+services:
+  db:
+    image: pgvector/pgvector:0.8.7-pg17
+    environment:
+      POSTGRES_USER: pokechamp
+      POSTGRES_PASSWORD: pokechamp  # local dev only; never reused in the cloud
+      POSTGRES_DB: pokechamp
+    # 5433 on the host so it can't clash with a Homebrew Postgres on 5432.
+    ports: ["5433:5432"]
+    command: >
+      postgres -c shared_buffers=64MB -c work_mem=4MB -c max_connections=20
+    mem_limit: 256m
+    volumes: [pgdata:/var/lib/postgresql/data]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U pokechamp"]
+      interval: 2s
+      timeout: 3s
+      retries: 30
+
+volumes:
+  pgdata:

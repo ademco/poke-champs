@@ -43,6 +43,10 @@ Adem is building this to get AI Engineer roles and must be able to explain every
 - **Golden set:** Claude drafts it and Adem edits it. The rubric gets finalized together.
 - **Community repo `otterlyclueless/pokemon-champions-data` is stale:** last updated 2026-04-16 (Reg M-A, 258 entries, no M-C additions). Its move/learnset data was scraped from Serebii, so the CC BY 4.0 label is doubtful for those parts. Use it only as a cross-check against Showdown, never as a primary source.
 
+## Commands
+
+`make setup`, `make demo` (DB up → migrate → ingest → golden checks), `make test`, `make snapshot` (re-export Showdown data in Docker; bump `SHOWDOWN_COMMIT` in the Makefile). Postgres runs on host port **5433**. The Showdown snapshot lives at `data/snapshots/showdown_champions.json` and is committed.
+
 ## Data source rules
 
 - **Whitelist only. No open web scraping.** Allowed: Showdown data files (MIT), pokemon-champions-data (CC BY 4.0, cross-check only), Bulbapedia mechanics pages (CC BY-NC-SA, with attribution), Smogon monthly stats, and Pikalytics/Limitless **only if their terms allow it**.

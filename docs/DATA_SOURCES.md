@@ -33,19 +33,23 @@ Last reviewed: **2026-10-08**. Every record and chunk we store carries `source`,
   - **Status changes:** full paralysis 1/8 (mainline 1/4); sleep 1–2 turns (mainline 1–3); freeze has a 25% thaw chance per turn and a guaranteed thaw by turn 3.
   - **Moves:** 23 moves have changed power or accuracy. The PP rule differs from mainline (`calculatePP`).
   - **Roster:** M-C has 349 legal entries (including forms and Megas) vs 314 in M-B. M-C adds 35 entries (23 new species, Alolan Persian, 6 new Megas, and some forms); nothing was removed.
-- How we'll ingest it (phase 1): download the pinned commit's data files into `data/raw/` (git-ignored) and parse them. Record the commit SHA as the provenance.
+- **How we ingest it (phase 1):** `make snapshot` fetches the pinned commit with git, then builds Showdown and runs `tools/showdown_export/export.js` inside a `node:22.23.3-alpine` container. Showdown's own `Dex` merges the Champions patches, and its `TeamValidator` decides legality and learnsets. The output, `data/snapshots/showdown_champions.json` (~1.5 MB, MIT), is committed, so CI and fresh clones need no Node, and each refresh is a reviewable diff. `make ingest` loads it into Postgres in one transaction. Every row references an `ingestion_runs` row that records the source, license, commit SHA and export time.
+- **Current snapshot:** showdown@`3065d24d698bc7f88a401c6e6d0cb42e5684d1ea` (2026-10-08). It has 1,371 species (382 legal: the 349 regulation entries plus 33 cosmetic or in-battle forms), 937 moves (515 legal), 577 items (166 legal), 317 abilities, and 17,364 learnset rows.
+- **Reproducibility check:** the Docker export and a direct Node export produced identical JSON (apart from the timestamp).
+- **Excluded on purpose:** CAP, Custom, LGPE, Future and Gigantamax placeholder entries. Real Pokémon that aren't in Champions are kept with `legal = false` and a reason, so the assistant can tell "not in this regulation" apart from "doesn't exist".
 
 ### `smogon_calc`: @smogon/calc (MIT) ✅
 - License: MIT (`Copyright (c) 2013-2025 Honko and other contributors`). Latest npm version is 0.12.0; the repo was last updated 2026-10-08.
 - It has a dedicated Champions mode (`calc/src/mechanics/champions.ts`, treated as "gen 0"), and its Champions stat formula matches Showdown's.
 - **The Life Orb gap:** third parties reported missing item modifiers like Life Orb in Champions mode. The current source *does* handle Life Orb (`champions.ts` line ~1164). One Champions calc project says Life Orb and some Mega Stones were "added in a later release", so the gap was probably real in older versions and is now fixed. **Not yet verified by running it.** Phase 2 adds a test fixture with Life Orb to confirm.
-- How we use it: we port the damage formula to Python and generate expected outputs with `@smogon/calc` in CI using `actions/setup-node`. That means **no Node install on your Mac** (decision pending, see BUILD_LOG phase 0).
+- How we use it: we port the damage formula to Python and generate expected outputs with `@smogon/calc` in CI using `actions/setup-node`. That means **no Node install on your Mac**: Node only ever runs in Docker or CI.
 
 ### `community_data`: pokemon-champions-data (CC BY 4.0) 🔎
 - `LICENSE`: "Creative Commons Attribution 4.0 International. Copyright (c) 2026 Pokemon Champions Data Contributors."
 - **Stale:** `meta/version.json` says `lastUpdated: 2026-04-16` (Reg M-A, 258 entries). It has none of the M-C additions (no Rillaboom, Baxcalibur or Arboliva).
 - **Mixed origin:** move stats, PP and learnsets were "scraped April 16 2026" from Serebii. The CC BY license can't grant rights the compiler didn't have, so we treat it as a cross-check only.
 - Its own `mechanics/stat-formula.md` says the SP formula is "under verification". Showdown's code is more authoritative, so we don't use the repo's formula.
+- **Cross-check (2026-10-08):** 256 of its 258 entries matched our Showdown snapshot, with **0 base-stat and 0 type mismatches**. The 2 unmatched were naming differences (Paldean Tauros has three breeds in Showdown; "Mega Meowstic" is split into male and female). Its "Floette" is Showdown's Floette-Eternal.
 
 ### `bulbapedia`: Bulbapedia (CC BY-NC-SA 2.5) ⏳
 - Bulbapedia's copyright page (as shown in [search results](https://bulbapedia.bulbagarden.net/wiki/BP:Copyrights)) puts content edited since 2007-04-15 under CC BY-NC-SA 2.5. Some pages copied from Wikipedia are under the GFDL instead.

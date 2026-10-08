@@ -13,6 +13,21 @@ concurrency:
 jobs:
   test:
     runs-on: ubuntu-latest
+    # Same image as docker-compose.yml, so CI tests what runs locally.
+    services:
+      postgres:
+        image: pgvector/pgvector:0.8.7-pg17
+        env:
+          POSTGRES_USER: pokechamp
+          POSTGRES_PASSWORD: pokechamp
+          POSTGRES_DB: pokechamp
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U pokechamp"
+          --health-interval 2s --health-timeout 3s --health-retries 30
+    env:
+      DATABASE_URL: postgresql://pokechamp:pokechamp@localhost:5432/pokechamp
+      REQUIRE_DB: "1"  # DB tests must run in CI, never silently skip
     steps:
       - uses: actions/checkout@v7
 
@@ -33,3 +48,10 @@ jobs:
 
       - name: Tests
         run: pytest
+
+      # End-to-end smoke test: what `make demo` does on a laptop.
+      - name: Migrate, load, run golden-set checks
+        run: |
+          python -m pokechamp.db.migrate
+          python -m pokechamp.ingest.load_showdown
+          python -m pokechamp.evals.auto_checks
