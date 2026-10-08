@@ -87,7 +87,7 @@ Python 3.12 in a project-local venv (`.venv/`) · Flask REST API · PostgreSQL +
   3. Open a PR titled `phase N: ...` (via `gh pr create` locally, or the GitHub integration in cloud sessions).
   4. Add a section to `docs/BUILD_LOG.md`: what was built, key trade-offs, before/after metrics if relevant, 3 interview questions with short model answers.
   5. Give Adem **one command** to see the result.
-  6. Give a **3-question quiz** where Adem explains concepts back in his own words. Correct mistakes plainly.
+  6. No quizzes (Adem, 2026-10-08). Interview Q&As stay in BUILD_LOG for him to read on his own.
 - Adem reviews and merges the PR himself, then says "go".
 
 ## Golden set
