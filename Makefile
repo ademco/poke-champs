@@ -3,6 +3,8 @@
 PY := .venv/bin/python
 # Pinned Showdown commit the committed snapshot was exported from.
 SHOWDOWN_COMMIT ?= 3065d24d698bc7f88a401c6e6d0cb42e5684d1ea
+# Damage-calc version our Python port is tested against.
+SMOGON_CALC_VERSION ?= 0.12.0
 
 help:  ## list targets
 	@grep -E '^[a-z-]+:.*##' $(MAKEFILE_LIST) | awk -F':.*## ' '{printf "  %-10s %s\n", $$1, $$2}'
@@ -39,4 +41,13 @@ snapshot:  ## re-export data/snapshots from Showdown@SHOWDOWN_COMMIT (Node runs 
 	docker run --rm $(DOCKER_ARGS) -v "$(CURDIR)":/work -w /work/$(SHOWDOWN_DIR) \
 	  node:22.23.3-alpine sh /work/tools/showdown_export/run.sh $(SHOWDOWN_COMMIT)
 
-.PHONY: help setup db-up db-down migrate ingest checks test demo snapshot
+fixtures:  ## regenerate reference answers: Showdown validator + @smogon/calc (Node in Docker)
+	.venv/bin/python tools/showdown_export/build_legality_teams.py
+	docker run --rm $(DOCKER_ARGS) -v "$(CURDIR)":/work -w /work/$(SHOWDOWN_DIR) \
+	  -e SHOWDOWN_DIR=/work/$(SHOWDOWN_DIR) node:22.23.3-alpine \
+	  node /work/tools/showdown_export/validate_teams.js /work
+	docker run --rm $(DOCKER_ARGS) -v "$(CURDIR)":/work -w /work/.cache/calc node:22.23.3-alpine \
+	  sh -c 'npm init -y >/dev/null && npm i --silent @smogon/calc@$(SMOGON_CALC_VERSION) && \
+	  NODE_PATH=/work/.cache/calc/node_modules node /work/tools/calc_fixtures/generate.js /work'
+
+.PHONY: help setup db-up db-down migrate ingest checks test demo snapshot fixtures

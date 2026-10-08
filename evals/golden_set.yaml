@@ -593,7 +593,11 @@ cases:
     auto_checks:
       - kind: team_legality
         args: {regulation: M-C, game_type: doubles}
-        expected: ["species_illegal:Flutter Mane", "item_illegal:Booster Energy", "team_too_small:1"]
+        expected:
+          - "species_illegal:Flutter Mane"
+          - "item_illegal:Booster Energy"
+          - "nickname_too_long:Flutter Mane"
+          - "team_too_small:1"
 
   - id: team-006
     category: team_analysis
@@ -649,11 +653,13 @@ cases:
     input: "Does Jolly 32 Atk Garchomp's Earthquake OHKO a Careful 32 HP / 16 Def Incineroar?"
     expected_behavior: answer
     expected_answer: >-
-      Damage range from the deterministic calc (spread 0.75x applies if both foes
-      are hit; Intimidate matters). Must state the % range and KO chance from the
-      tool, never an estimate.
+      Single-target Earthquake does 164-194 (81.1-96%): a guaranteed 2HKO, not an
+      OHKO. If it hits both foes in doubles the 0.75x spread modifier lowers it
+      further, and Incineroar's Intimidate (if it activated) would lower it more.
+      Numbers must come from the damage tool, never an estimate.
+    must_include: ["2HKO"]
     sources:
-      - {source: smogon_calc, ref: "fixture generated from @smogon/calc Champions mode"}
+      - {source: smogon_calc, ref: "tests/fixtures/damage_expected.json#eq-single-target (@smogon/calc 0.12.0)"}
     auto_checks:
       - kind: damage_range
         args:
@@ -661,7 +667,8 @@ cases:
           defender: {species: Incineroar, nature: Careful, sp: {hp: 32, def: 16, spd: 16, atk: 2}}
           move: Earthquake
           spread: false
-    notes: "expected filled from the @smogon/calc fixture in phase 2."
+        expected: [164, 164, 168, 170, 170, 174, 176, 176, 180, 182, 182, 186, 188, 188, 192, 194]
+    notes: "Rolls verified against @smogon/calc 0.12.0 (Champions mode)."
 
   - id: team-009
     category: team_analysis

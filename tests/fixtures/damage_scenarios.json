@@ -1,0 +1,1870 @@
+{
+ "note": "Inputs for tools/calc_fixtures/generate.js; outputs land in damage_expected.json.",
+ "scenarios": [
+  {
+   "id": "eq-single-target",
+   "attacker": {
+    "species": "Garchomp",
+    "nature": "Jolly",
+    "sp": {
+     "atk": 32,
+     "spe": 32,
+     "hp": 2
+    }
+   },
+   "defender": {
+    "species": "Incineroar",
+    "nature": "Careful",
+    "sp": {
+     "hp": 32,
+     "def": 16,
+     "spd": 16,
+     "atk": 2
+    }
+   },
+   "move": "Earthquake",
+   "spread": false
+  },
+  {
+   "id": "eq-spread-doubles",
+   "attacker": {
+    "species": "Garchomp",
+    "nature": "Jolly",
+    "sp": {
+     "atk": 32,
+     "spe": 32,
+     "hp": 2
+    }
+   },
+   "defender": {
+    "species": "Incineroar",
+    "nature": "Careful",
+    "sp": {
+     "hp": 32,
+     "def": 16,
+     "spd": 16,
+     "atk": 2
+    }
+   },
+   "move": "Earthquake"
+  },
+  {
+   "id": "rockslide-spread",
+   "attacker": {
+    "species": "Garchomp",
+    "nature": "Jolly",
+    "sp": {
+     "atk": 32,
+     "spe": 32,
+     "hp": 2
+    }
+   },
+   "defender": {
+    "species": "Incineroar",
+    "nature": "Careful",
+    "sp": {
+     "hp": 32,
+     "def": 16,
+     "spd": 16,
+     "atk": 2
+    }
+   },
+   "move": "Rock Slide"
+  },
+  {
+   "id": "lifeorb-extremespeed",
+   "attacker": {
+    "species": "Dragonite",
+    "nature": "Adamant",
+    "sp": {
+     "atk": 32,
+     "hp": 32,
+     "spe": 2
+    },
+    "ability": "Multiscale",
+    "item": "Life Orb"
+   },
+   "defender": {
+    "species": "Incineroar",
+    "nature": "Careful",
+    "sp": {
+     "hp": 32,
+     "def": 16,
+     "spd": 16,
+     "atk": 2
+    }
+   },
+   "move": "Extreme Speed"
+  },
+  {
+   "id": "sun-fire",
+   "attacker": {
+    "species": "Incineroar",
+    "nature": "Careful",
+    "sp": {
+     "hp": 32,
+     "def": 16,
+     "spd": 16,
+     "atk": 2
+    },
+    "ability": "Blaze"
+   },
+   "defender": {
+    "species": "Kingambit",
+    "nature": "Adamant",
+    "sp": {
+     "hp": 32,
+     "atk": 32,
+     "def": 2
+    },
+    "ability": "Defiant"
+   },
+   "move": "Flare Blitz",
+   "field": {
+    "weather": "Sun"
+   }
+  },
+  {
+   "id": "rain-fire",
+   "attacker": {
+    "species": "Incineroar",
+    "nature": "Careful",
+    "sp": {
+     "hp": 32,
+     "def": 16,
+     "spd": 16,
+     "atk": 2
+    },
+    "ability": "Blaze"
+   },
+   "defender": {
+    "species": "Kingambit",
+    "nature": "Adamant",
+    "sp": {
+     "hp": 32,
+     "atk": 32,
+     "def": 2
+    },
+    "ability": "Defiant"
+   },
+   "move": "Flare Blitz",
+   "field": {
+    "weather": "Rain"
+   }
+  },
+  {
+   "id": "rain-water",
+   "attacker": {
+    "species": "Pelipper",
+    "nature": "Modest",
+    "sp": {
+     "hp": 32,
+     "spa": 32,
+     "spe": 2
+    },
+    "ability": "Drizzle"
+   },
+   "defender": {
+    "species": "Incineroar",
+    "nature": "Careful",
+    "sp": {
+     "hp": 32,
+     "def": 16,
+     "spd": 16,
+     "atk": 2
+    }
+   },
+   "move": "Hydro Pump",
+   "field": {
+    "weather": "Rain"
+   }
+  },
+  {
+   "id": "sun-water",
+   "attacker": {
+    "species": "Pelipper",
+    "nature": "Modest",
+    "sp": {
+     "hp": 32,
+     "spa": 32,
+     "spe": 2
+    },
+    "ability": "Drizzle"
+   },
+   "defender": {
+    "species": "Incineroar",
+    "nature": "Careful",
+    "sp": {
+     "hp": 32,
+     "def": 16,
+     "spd": 16,
+     "atk": 2
+    }
+   },
+   "move": "Hydro Pump",
+   "field": {
+    "weather": "Sun"
+   }
+  },
+  {
+   "id": "sand-rock-spdef",
+   "attacker": {
+    "species": "Pelipper",
+    "nature": "Modest",
+    "sp": {
+     "hp": 32,
+     "spa": 32,
+     "spe": 2
+    },
+    "ability": "Drizzle"
+   },
+   "defender": {
+    "species": "Tyranitar",
+    "ability": "Sand Stream"
+   },
+   "move": "Hydro Pump",
+   "field": {
+    "weather": "Sand"
+   }
+  },
+  {
+   "id": "snow-ice-def",
+   "attacker": {
+    "species": "Kingambit",
+    "nature": "Adamant",
+    "sp": {
+     "hp": 32,
+     "atk": 32,
+     "def": 2
+    },
+    "ability": "Defiant"
+   },
+   "defender": {
+    "species": "Mamoswine",
+    "ability": "Thick Fat"
+   },
+   "move": "Iron Head",
+   "field": {
+    "weather": "Snow"
+   }
+  },
+  {
+   "id": "crit",
+   "attacker": {
+    "species": "Kingambit",
+    "nature": "Adamant",
+    "sp": {
+     "hp": 32,
+     "atk": 32,
+     "def": 2
+    },
+    "ability": "Defiant"
+   },
+   "defender": {
+    "species": "Garchomp",
+    "nature": "Jolly",
+    "sp": {
+     "atk": 32,
+     "spe": 32,
+     "hp": 2
+    }
+   },
+   "move": "Kowtow Cleave",
+   "crit": true
+  },
+  {
+   "id": "crit-ignores-def-boost",
+   "attacker": {
+    "species": "Kingambit",
+    "nature": "Adamant",
+    "sp": {
+     "hp": 32,
+     "atk": 32,
+     "def": 2
+    },
+    "ability": "Defiant"
+   },
+   "defender": {
+    "species": "Garchomp",
+    "nature": "Jolly",
+    "sp": {
+     "atk": 32,
+     "spe": 32,
+     "hp": 2
+    },
+    "boosts": {
+     "def": 2
+    }
+   },
+   "move": "Kowtow Cleave",
+   "crit": true
+  },
+  {
+   "id": "burned-physical",
+   "attacker": {
+    "species": "Kingambit",
+    "nature": "Adamant",
+    "sp": {
+     "hp": 32,
+     "atk": 32,
+     "def": 2
+    },
+    "ability": "Defiant",
+    "status": "brn"
+   },
+   "defender": {
+    "species": "Garchomp",
+    "nature": "Jolly",
+    "sp": {
+     "atk": 32,
+     "spe": 32,
+     "hp": 2
+    }
+   },
+   "move": "Kowtow Cleave"
+  },
+  {
+   "id": "guts-burned-facade",
+   "attacker": {
+    "species": "Conkeldurr",
+    "nature": "Adamant",
+    "sp": {
+     "atk": 32
+    },
+    "ability": "Guts",
+    "status": "brn"
+   },
+   "defender": {
+    "species": "Incineroar",
+    "nature": "Careful",
+    "sp": {
+     "hp": 32,
+     "def": 16,
+     "spd": 16,
+     "atk": 2
+    }
+   },
+   "move": "Facade"
+  },
+  {
+   "id": "atk-plus-2",
+   "attacker": {
+    "species": "Garchomp",
+    "nature": "Jolly",
+    "sp": {
+     "atk": 32,
+     "spe": 32,
+     "hp": 2
+    },
+    "boosts": {
+     "atk": 2
+    }
+   },
+   "defender": {
+    "species": "Incineroar",
+    "nature": "Careful",
+    "sp": {
+     "hp": 32,
+     "def": 16,
+     "spd": 16,
+     "atk": 2
+    }
+   },
+   "move": "Earthquake",
+   "spread": false
+  },
+  {
+   "id": "def-plus-1",
+   "attacker": {
+    "species": "Garchomp",
+    "nature": "Jolly",
+    "sp": {
+     "atk": 32,
+     "spe": 32,
+     "hp": 2
+    }
+   },
+   "defender": {
+    "species": "Incineroar",
+    "nature": "Careful",
+    "sp": {
+     "hp": 32,
+     "def": 16,
+     "spd": 16,
+     "atk": 2
+    },
+    "boosts": {
+     "def": 1
+    }
+   },
+   "move": "Earthquake",
+   "spread": false
+  },
+  {
+   "id": "intimidated-attacker",
+   "attacker": {
+    "species": "Garchomp",
+    "nature": "Jolly",
+    "sp": {
+     "atk": 32,
+     "spe": 32,
+     "hp": 2
+    }
+   },
+   "defender": {
+    "species": "Incineroar",
+    "nature": "Careful",
+    "sp": {
+     "hp": 32,
+     "def": 16,
+     "spd": 16,
+     "atk": 2
+    },
+    "ability": "Intimidate",
+    "ability_on": true
+   },
+   "move": "Earthquake",
+   "spread": false
+  },
+  {
+   "id": "intimidate-defiant",
+   "attacker": {
+    "species": "Kingambit",
+    "nature": "Adamant",
+    "sp": {
+     "hp": 32,
+     "atk": 32,
+     "def": 2
+    },
+    "ability": "Defiant"
+   },
+   "defender": {
+    "species": "Incineroar",
+    "nature": "Careful",
+    "sp": {
+     "hp": 32,
+     "def": 16,
+     "spd": 16,
+     "atk": 2
+    },
+    "ability": "Intimidate",
+    "ability_on": true
+   },
+   "move": "Kowtow Cleave"
+  },
+  {
+   "id": "reflect-doubles",
+   "attacker": {
+    "species": "Kingambit",
+    "nature": "Adamant",
+    "sp": {
+     "hp": 32,
+     "atk": 32,
+     "def": 2
+    },
+    "ability": "Defiant"
+   },
+   "defender": {
+    "species": "Incineroar",
+    "nature": "Careful",
+    "sp": {
+     "hp": 32,
+     "def": 16,
+     "spd": 16,
+     "atk": 2
+    }
+   },
+   "move": "Iron Head",
+   "field": {
+    "defender_side": {
+     "reflect": true
+    }
+   }
+  },
+  {
+   "id": "reflect-singles",
+   "attacker": {
+    "species": "Kingambit",
+    "nature": "Adamant",
+    "sp": {
+     "hp": 32,
+     "atk": 32,
+     "def": 2
+    },
+    "ability": "Defiant"
+   },
+   "defender": {
+    "species": "Incineroar",
+    "nature": "Careful",
+    "sp": {
+     "hp": 32,
+     "def": 16,
+     "spd": 16,
+     "atk": 2
+    }
+   },
+   "move": "Iron Head",
+   "field": {
+    "game_type": "singles",
+    "defender_side": {
+     "reflect": true
+    }
+   }
+  },
+  {
+   "id": "lightscreen-doubles",
+   "attacker": {
+    "species": "Pelipper",
+    "nature": "Modest",
+    "sp": {
+     "hp": 32,
+     "spa": 32,
+     "spe": 2
+    },
+    "ability": "Drizzle"
+   },
+   "defender": {
+    "species": "Incineroar",
+    "nature": "Careful",
+    "sp": {
+     "hp": 32,
+     "def": 16,
+     "spd": 16,
+     "atk": 2
+    }
+   },
+   "move": "Hydro Pump",
+   "field": {
+    "defender_side": {
+     "light_screen": true
+    }
+   }
+  },
+  {
+   "id": "auroraveil-crit-ignored",
+   "attacker": {
+    "species": "Kingambit",
+    "nature": "Adamant",
+    "sp": {
+     "hp": 32,
+     "atk": 32,
+     "def": 2
+    },
+    "ability": "Defiant"
+   },
+   "defender": {
+    "species": "Incineroar",
+    "nature": "Careful",
+    "sp": {
+     "hp": 32,
+     "def": 16,
+     "spd": 16,
+     "atk": 2
+    }
+   },
+   "move": "Iron Head",
+   "crit": true,
+   "field": {
+    "defender_side": {
+     "aurora_veil": true
+    }
+   }
+  },
+  {
+   "id": "brickbreak-ignores-reflect",
+   "attacker": {
+    "species": "Conkeldurr",
+    "nature": "Adamant",
+    "sp": {
+     "atk": 32
+    },
+    "ability": "Guts"
+   },
+   "defender": {
+    "species": "Kingambit",
+    "nature": "Adamant",
+    "sp": {
+     "hp": 32,
+     "atk": 32,
+     "def": 2
+    },
+    "ability": "Defiant"
+   },
+   "move": "Brick Break",
+   "field": {
+    "defender_side": {
+     "reflect": true
+    }
+   }
+  },
+  {
+   "id": "helping-hand",
+   "attacker": {
+    "species": "Dragonite",
+    "nature": "Adamant",
+    "sp": {
+     "atk": 32,
+     "hp": 32,
+     "spe": 2
+    },
+    "ability": "Multiscale"
+   },
+   "defender": {
+    "species": "Incineroar",
+    "nature": "Careful",
+    "sp": {
+     "hp": 32,
+     "def": 16,
+     "spd": 16,
+     "atk": 2
+    }
+   },
+   "move": "Extreme Speed",
+   "field": {
+    "attacker_side": {
+     "helping_hand": true
+    }
+   }
+  },
+  {
+   "id": "friend-guard",
+   "attacker": {
+    "species": "Dragonite",
+    "nature": "Adamant",
+    "sp": {
+     "atk": 32,
+     "hp": 32,
+     "spe": 2
+    },
+    "ability": "Multiscale"
+   },
+   "defender": {
+    "species": "Incineroar",
+    "nature": "Careful",
+    "sp": {
+     "hp": 32,
+     "def": 16,
+     "spd": 16,
+     "atk": 2
+    }
+   },
+   "move": "Extreme Speed",
+   "field": {
+    "defender_side": {
+     "friend_guard": true
+    }
+   }
+  },
+  {
+   "id": "grassy-glide-terrain",
+   "attacker": {
+    "species": "Rillaboom",
+    "nature": "Adamant",
+    "sp": {
+     "atk": 32
+    },
+    "ability": "Grassy Surge"
+   },
+   "defender": {
+    "species": "Kingambit",
+    "nature": "Adamant",
+    "sp": {
+     "hp": 32,
+     "atk": 32,
+     "def": 2
+    },
+    "ability": "Defiant"
+   },
+   "move": "Grassy Glide",
+   "field": {
+    "terrain": "Grassy"
+   }
+  },
+  {
+   "id": "grassy-halves-eq",
+   "attacker": {
+    "species": "Garchomp",
+    "nature": "Jolly",
+    "sp": {
+     "atk": 32,
+     "spe": 32,
+     "hp": 2
+    }
+   },
+   "defender": {
+    "species": "Incineroar",
+    "nature": "Careful",
+    "sp": {
+     "hp": 32,
+     "def": 16,
+     "spd": 16,
+     "atk": 2
+    }
+   },
+   "move": "Earthquake",
+   "spread": false,
+   "field": {
+    "terrain": "Grassy"
+   }
+  },
+  {
+   "id": "electric-terrain",
+   "attacker": {
+    "species": "Luxray",
+    "nature": "Modest",
+    "sp": {
+     "spa": 32
+    },
+    "ability": "Guts"
+   },
+   "defender": {
+    "species": "Pelipper",
+    "nature": "Modest",
+    "sp": {
+     "hp": 32,
+     "spa": 32,
+     "spe": 2
+    },
+    "ability": "Drizzle"
+   },
+   "move": "Thunderbolt",
+   "field": {
+    "terrain": "Electric"
+   }
+  },
+  {
+   "id": "psychic-terrain-blocks-priority",
+   "attacker": {
+    "species": "Kingambit",
+    "nature": "Adamant",
+    "sp": {
+     "hp": 32,
+     "atk": 32,
+     "def": 2
+    },
+    "ability": "Defiant"
+   },
+   "defender": {
+    "species": "Incineroar",
+    "nature": "Careful",
+    "sp": {
+     "hp": 32,
+     "def": 16,
+     "spd": 16,
+     "atk": 2
+    }
+   },
+   "move": "Sucker Punch",
+   "field": {
+    "terrain": "Psychic"
+   }
+  },
+  {
+   "id": "misty-halves-dragon",
+   "attacker": {
+    "species": "Dragonite",
+    "nature": "Adamant",
+    "sp": {
+     "atk": 32,
+     "hp": 32,
+     "spe": 2
+    },
+    "ability": "Multiscale"
+   },
+   "defender": {
+    "species": "Garchomp",
+    "nature": "Jolly",
+    "sp": {
+     "atk": 32,
+     "spe": 32,
+     "hp": 2
+    }
+   },
+   "move": "Dragon Claw",
+   "field": {
+    "terrain": "Misty"
+   }
+  },
+  {
+   "id": "expert-belt",
+   "attacker": {
+    "species": "Garchomp",
+    "nature": "Jolly",
+    "sp": {
+     "atk": 32,
+     "spe": 32,
+     "hp": 2
+    },
+    "item": "Expert Belt"
+   },
+   "defender": {
+    "species": "Dragonite",
+    "nature": "Adamant",
+    "sp": {
+     "atk": 32,
+     "hp": 32,
+     "spe": 2
+    },
+    "ability": "Multiscale"
+   },
+   "move": "Dragon Claw"
+  },
+  {
+   "id": "mystic-water",
+   "attacker": {
+    "species": "Pelipper",
+    "nature": "Modest",
+    "sp": {
+     "hp": 32,
+     "spa": 32,
+     "spe": 2
+    },
+    "ability": "Drizzle",
+    "item": "Mystic Water"
+   },
+   "defender": {
+    "species": "Incineroar",
+    "nature": "Careful",
+    "sp": {
+     "hp": 32,
+     "def": 16,
+     "spd": 16,
+     "atk": 2
+    }
+   },
+   "move": "Hydro Pump"
+  },
+  {
+   "id": "resist-berry",
+   "attacker": {
+    "species": "Garchomp",
+    "nature": "Jolly",
+    "sp": {
+     "atk": 32,
+     "spe": 32,
+     "hp": 2
+    }
+   },
+   "defender": {
+    "species": "Dragonite",
+    "nature": "Adamant",
+    "sp": {
+     "atk": 32,
+     "hp": 32,
+     "spe": 2
+    },
+    "ability": "Multiscale",
+    "item": "Haban Berry"
+   },
+   "move": "Dragon Claw"
+  },
+  {
+   "id": "muscle-band",
+   "attacker": {
+    "species": "Kingambit",
+    "nature": "Adamant",
+    "sp": {
+     "hp": 32,
+     "atk": 32,
+     "def": 2
+    },
+    "ability": "Defiant",
+    "item": "Muscle Band"
+   },
+   "defender": {
+    "species": "Incineroar",
+    "nature": "Careful",
+    "sp": {
+     "hp": 32,
+     "def": 16,
+     "spd": 16,
+     "atk": 2
+    }
+   },
+   "move": "Iron Head"
+  },
+  {
+   "id": "air-balloon-ground",
+   "attacker": {
+    "species": "Garchomp",
+    "nature": "Jolly",
+    "sp": {
+     "atk": 32,
+     "spe": 32,
+     "hp": 2
+    }
+   },
+   "defender": {
+    "species": "Kingambit",
+    "nature": "Adamant",
+    "sp": {
+     "hp": 32,
+     "atk": 32,
+     "def": 2
+    },
+    "ability": "Defiant",
+    "item": "Air Balloon"
+   },
+   "move": "Earthquake",
+   "spread": false
+  },
+  {
+   "id": "normal-gem",
+   "attacker": {
+    "species": "Dragonite",
+    "nature": "Adamant",
+    "sp": {
+     "atk": 32,
+     "hp": 32,
+     "spe": 2
+    },
+    "ability": "Multiscale",
+    "item": "Normal Gem"
+   },
+   "defender": {
+    "species": "Incineroar",
+    "nature": "Careful",
+    "sp": {
+     "hp": 32,
+     "def": 16,
+     "spd": 16,
+     "atk": 2
+    }
+   },
+   "move": "Extreme Speed"
+  },
+  {
+   "id": "multiscale",
+   "attacker": {
+    "species": "Garchomp",
+    "nature": "Jolly",
+    "sp": {
+     "atk": 32,
+     "spe": 32,
+     "hp": 2
+    }
+   },
+   "defender": {
+    "species": "Dragonite",
+    "nature": "Adamant",
+    "sp": {
+     "atk": 32,
+     "hp": 32,
+     "spe": 2
+    },
+    "ability": "Multiscale"
+   },
+   "move": "Dragon Claw"
+  },
+  {
+   "id": "multiscale-not-full-hp",
+   "attacker": {
+    "species": "Garchomp",
+    "nature": "Jolly",
+    "sp": {
+     "atk": 32,
+     "spe": 32,
+     "hp": 2
+    }
+   },
+   "defender": {
+    "species": "Dragonite",
+    "nature": "Adamant",
+    "sp": {
+     "atk": 32,
+     "hp": 32,
+     "spe": 2
+    },
+    "ability": "Multiscale",
+    "cur_hp": 150
+   },
+   "move": "Dragon Claw"
+  },
+  {
+   "id": "mold-breaker-vs-multiscale",
+   "attacker": {
+    "species": "Excadrill",
+    "nature": "Jolly",
+    "sp": {
+     "atk": 32
+    },
+    "ability": "Mold Breaker"
+   },
+   "defender": {
+    "species": "Dragonite",
+    "nature": "Adamant",
+    "sp": {
+     "atk": 32,
+     "hp": 32,
+     "spe": 2
+    },
+    "ability": "Multiscale"
+   },
+   "move": "Iron Head"
+  },
+  {
+   "id": "thick-fat",
+   "attacker": {
+    "species": "Incineroar",
+    "nature": "Careful",
+    "sp": {
+     "hp": 32,
+     "def": 16,
+     "spd": 16,
+     "atk": 2
+    },
+    "ability": "Blaze"
+   },
+   "defender": {
+    "species": "Snorlax",
+    "ability": "Thick Fat"
+   },
+   "move": "Flare Blitz"
+  },
+  {
+   "id": "filter",
+   "attacker": {
+    "species": "Garchomp",
+    "nature": "Jolly",
+    "sp": {
+     "atk": 32,
+     "spe": 32,
+     "hp": 2
+    }
+   },
+   "defender": {
+    "species": "Aggron-Mega",
+    "ability": "Filter"
+   },
+   "move": "Earthquake",
+   "spread": false
+  },
+  {
+   "id": "levitate-immune",
+   "attacker": {
+    "species": "Garchomp",
+    "nature": "Jolly",
+    "sp": {
+     "atk": 32,
+     "spe": 32,
+     "hp": 2
+    }
+   },
+   "defender": {
+    "species": "Garchomp-Mega-Z",
+    "ability": "Levitate"
+   },
+   "move": "Earthquake",
+   "spread": false
+  },
+  {
+   "id": "flash-fire-immune",
+   "attacker": {
+    "species": "Incineroar",
+    "nature": "Careful",
+    "sp": {
+     "hp": 32,
+     "def": 16,
+     "spd": 16,
+     "atk": 2
+    },
+    "ability": "Blaze"
+   },
+   "defender": {
+    "species": "Arcanine",
+    "ability": "Flash Fire"
+   },
+   "move": "Flare Blitz"
+  },
+  {
+   "id": "ghost-immune-normal",
+   "attacker": {
+    "species": "Dragonite",
+    "nature": "Adamant",
+    "sp": {
+     "atk": 32,
+     "hp": 32,
+     "spe": 2
+    },
+    "ability": "Multiscale"
+   },
+   "defender": {
+    "species": "Sinistcha",
+    "ability": "Heatproof"
+   },
+   "move": "Extreme Speed"
+  },
+  {
+   "id": "scrappy-hits-ghost",
+   "attacker": {
+    "species": "Kangaskhan",
+    "nature": "Adamant",
+    "sp": {
+     "atk": 32
+    },
+    "ability": "Scrappy"
+   },
+   "defender": {
+    "species": "Sinistcha",
+    "ability": "Heatproof"
+   },
+   "move": "Double-Edge"
+  },
+  {
+   "id": "heatproof",
+   "attacker": {
+    "species": "Incineroar",
+    "nature": "Careful",
+    "sp": {
+     "hp": 32,
+     "def": 16,
+     "spd": 16,
+     "atk": 2
+    },
+    "ability": "Blaze"
+   },
+   "defender": {
+    "species": "Sinistcha",
+    "ability": "Heatproof"
+   },
+   "move": "Flare Blitz"
+  },
+  {
+   "id": "fur-coat",
+   "attacker": {
+    "species": "Kingambit",
+    "nature": "Adamant",
+    "sp": {
+     "hp": 32,
+     "atk": 32,
+     "def": 2
+    },
+    "ability": "Defiant"
+   },
+   "defender": {
+    "species": "Persian-Alola",
+    "ability": "Fur Coat"
+   },
+   "move": "Iron Head"
+  },
+  {
+   "id": "fluffy-contact-fire",
+   "attacker": {
+    "species": "Incineroar",
+    "nature": "Careful",
+    "sp": {
+     "hp": 32,
+     "def": 16,
+     "spd": 16,
+     "atk": 2
+    },
+    "ability": "Blaze"
+   },
+   "defender": {
+    "species": "Houndstone",
+    "ability": "Fluffy"
+   },
+   "move": "Flare Blitz"
+  },
+  {
+   "id": "unaware-ignores-boosts",
+   "attacker": {
+    "species": "Garchomp",
+    "nature": "Jolly",
+    "sp": {
+     "atk": 32,
+     "spe": 32,
+     "hp": 2
+    },
+    "boosts": {
+     "atk": 2
+    }
+   },
+   "defender": {
+    "species": "Clefable",
+    "ability": "Unaware"
+   },
+   "move": "Earthquake",
+   "spread": false
+  },
+  {
+   "id": "solid-rock",
+   "attacker": {
+    "species": "Pelipper",
+    "nature": "Modest",
+    "sp": {
+     "hp": 32,
+     "spa": 32,
+     "spe": 2
+    },
+    "ability": "Drizzle"
+   },
+   "defender": {
+    "species": "Rhyperior",
+    "ability": "Solid Rock"
+   },
+   "move": "Hydro Pump"
+  },
+  {
+   "id": "technician",
+   "attacker": {
+    "species": "Persian-Alola",
+    "nature": "Jolly",
+    "sp": {
+     "atk": 32
+    },
+    "ability": "Technician"
+   },
+   "defender": {
+    "species": "Incineroar",
+    "nature": "Careful",
+    "sp": {
+     "hp": 32,
+     "def": 16,
+     "spd": 16,
+     "atk": 2
+    }
+   },
+   "move": "Fake Out"
+  },
+  {
+   "id": "tough-claws",
+   "attacker": {
+    "species": "Charizard-Mega-X",
+    "nature": "Adamant",
+    "sp": {
+     "atk": 32
+    },
+    "ability": "Tough Claws"
+   },
+   "defender": {
+    "species": "Garchomp",
+    "nature": "Jolly",
+    "sp": {
+     "atk": 32,
+     "spe": 32,
+     "hp": 2
+    }
+   },
+   "move": "Dragon Claw"
+  },
+  {
+   "id": "sheer-force",
+   "attacker": {
+    "species": "Conkeldurr",
+    "nature": "Adamant",
+    "sp": {
+     "atk": 32
+    },
+    "ability": "Sheer Force"
+   },
+   "defender": {
+    "species": "Garchomp",
+    "nature": "Jolly",
+    "sp": {
+     "atk": 32,
+     "spe": 32,
+     "hp": 2
+    }
+   },
+   "move": "Ice Punch"
+  },
+  {
+   "id": "iron-fist",
+   "attacker": {
+    "species": "Conkeldurr",
+    "nature": "Adamant",
+    "sp": {
+     "atk": 32
+    },
+    "ability": "Iron Fist"
+   },
+   "defender": {
+    "species": "Garchomp",
+    "nature": "Jolly",
+    "sp": {
+     "atk": 32,
+     "spe": 32,
+     "hp": 2
+    }
+   },
+   "move": "Ice Punch"
+  },
+  {
+   "id": "huge-power",
+   "attacker": {
+    "species": "Azumarill",
+    "nature": "Adamant",
+    "sp": {
+     "atk": 32
+    },
+    "ability": "Huge Power"
+   },
+   "defender": {
+    "species": "Incineroar",
+    "nature": "Careful",
+    "sp": {
+     "hp": 32,
+     "def": 16,
+     "spd": 16,
+     "atk": 2
+    }
+   },
+   "move": "Aqua Jet"
+  },
+  {
+   "id": "adaptability",
+   "attacker": {
+    "species": "Lucario-Mega",
+    "nature": "Adamant",
+    "sp": {
+     "atk": 32
+    },
+    "ability": "Adaptability"
+   },
+   "defender": {
+    "species": "Kingambit",
+    "nature": "Adamant",
+    "sp": {
+     "hp": 32,
+     "atk": 32,
+     "def": 2
+    },
+    "ability": "Defiant"
+   },
+   "move": "Close Combat"
+  },
+  {
+   "id": "pixilate-spread",
+   "attacker": {
+    "species": "Sylveon",
+    "nature": "Modest",
+    "sp": {
+     "spa": 32
+    },
+    "ability": "Pixilate"
+   },
+   "defender": {
+    "species": "Incineroar",
+    "nature": "Careful",
+    "sp": {
+     "hp": 32,
+     "def": 16,
+     "spd": 16,
+     "atk": 2
+    }
+   },
+   "move": "Hyper Voice"
+  },
+  {
+   "id": "aerilate",
+   "attacker": {
+    "species": "Salamence-Mega",
+    "nature": "Adamant",
+    "sp": {
+     "atk": 32
+    },
+    "ability": "Aerilate"
+   },
+   "defender": {
+    "species": "Kingambit",
+    "nature": "Adamant",
+    "sp": {
+     "hp": 32,
+     "atk": 32,
+     "def": 2
+    },
+    "ability": "Defiant"
+   },
+   "move": "Double-Edge"
+  },
+  {
+   "id": "dragonize",
+   "attacker": {
+    "species": "Feraligatr-Mega",
+    "nature": "Adamant",
+    "sp": {
+     "atk": 32
+    },
+    "ability": "Dragonize"
+   },
+   "defender": {
+    "species": "Incineroar",
+    "nature": "Careful",
+    "sp": {
+     "hp": 32,
+     "def": 16,
+     "spd": 16,
+     "atk": 2
+    }
+   },
+   "move": "Double-Edge"
+  },
+  {
+   "id": "supreme-overlord-3",
+   "attacker": {
+    "species": "Kingambit",
+    "nature": "Adamant",
+    "sp": {
+     "hp": 32,
+     "atk": 32,
+     "def": 2
+    },
+    "ability": "Supreme Overlord",
+    "allies_fainted": 3
+   },
+   "defender": {
+    "species": "Incineroar",
+    "nature": "Careful",
+    "sp": {
+     "hp": 32,
+     "def": 16,
+     "spd": 16,
+     "atk": 2
+    }
+   },
+   "move": "Kowtow Cleave"
+  },
+  {
+   "id": "reckless-recoil",
+   "attacker": {
+    "species": "Staraptor",
+    "nature": "Jolly",
+    "sp": {
+     "atk": 32
+    },
+    "ability": "Reckless"
+   },
+   "defender": {
+    "species": "Incineroar",
+    "nature": "Careful",
+    "sp": {
+     "hp": 32,
+     "def": 16,
+     "spd": 16,
+     "atk": 2
+    }
+   },
+   "move": "Brave Bird"
+  },
+  {
+   "id": "sharpness",
+   "attacker": {
+    "species": "Gallade",
+    "nature": "Adamant",
+    "sp": {
+     "atk": 32
+    },
+    "ability": "Sharpness"
+   },
+   "defender": {
+    "species": "Kingambit",
+    "nature": "Adamant",
+    "sp": {
+     "hp": 32,
+     "atk": 32,
+     "def": 2
+    },
+    "ability": "Defiant"
+   },
+   "move": "Sacred Sword"
+  },
+  {
+   "id": "knock-off-item",
+   "attacker": {
+    "species": "Kingambit",
+    "nature": "Adamant",
+    "sp": {
+     "hp": 32,
+     "atk": 32,
+     "def": 2
+    },
+    "ability": "Defiant"
+   },
+   "defender": {
+    "species": "Incineroar",
+    "nature": "Careful",
+    "sp": {
+     "hp": 32,
+     "def": 16,
+     "spd": 16,
+     "atk": 2
+    },
+    "item": "Sitrus Berry"
+   },
+   "move": "Knock Off"
+  },
+  {
+   "id": "knock-off-no-item",
+   "attacker": {
+    "species": "Kingambit",
+    "nature": "Adamant",
+    "sp": {
+     "hp": 32,
+     "atk": 32,
+     "def": 2
+    },
+    "ability": "Defiant"
+   },
+   "defender": {
+    "species": "Incineroar",
+    "nature": "Careful",
+    "sp": {
+     "hp": 32,
+     "def": 16,
+     "spd": 16,
+     "atk": 2
+    }
+   },
+   "move": "Knock Off"
+  },
+  {
+   "id": "knock-off-mega-stone",
+   "attacker": {
+    "species": "Kingambit",
+    "nature": "Adamant",
+    "sp": {
+     "hp": 32,
+     "atk": 32,
+     "def": 2
+    },
+    "ability": "Defiant"
+   },
+   "defender": {
+    "species": "Garchomp",
+    "nature": "Jolly",
+    "sp": {
+     "atk": 32,
+     "spe": 32,
+     "hp": 2
+    },
+    "item": "Garchompite"
+   },
+   "move": "Knock Off"
+  },
+  {
+   "id": "weather-ball-mega-sol",
+   "attacker": {
+    "species": "Meganium-Mega",
+    "nature": "Modest",
+    "sp": {
+     "spa": 32
+    },
+    "ability": "Mega Sol"
+   },
+   "defender": {
+    "species": "Kingambit",
+    "nature": "Adamant",
+    "sp": {
+     "hp": 32,
+     "atk": 32,
+     "def": 2
+    },
+    "ability": "Defiant"
+   },
+   "move": "Weather Ball"
+  },
+  {
+   "id": "weather-ball-rain",
+   "attacker": {
+    "species": "Pelipper",
+    "nature": "Modest",
+    "sp": {
+     "hp": 32,
+     "spa": 32,
+     "spe": 2
+    },
+    "ability": "Drizzle"
+   },
+   "defender": {
+    "species": "Incineroar",
+    "nature": "Careful",
+    "sp": {
+     "hp": 32,
+     "def": 16,
+     "spd": 16,
+     "atk": 2
+    }
+   },
+   "move": "Weather Ball",
+   "field": {
+    "weather": "Rain"
+   }
+  },
+  {
+   "id": "hex-statused",
+   "attacker": {
+    "species": "Chandelure",
+    "nature": "Modest",
+    "sp": {
+     "spa": 32
+    },
+    "ability": "Flash Fire"
+   },
+   "defender": {
+    "species": "Incineroar",
+    "nature": "Careful",
+    "sp": {
+     "hp": 32,
+     "def": 16,
+     "spd": 16,
+     "atk": 2
+    },
+    "status": "par"
+   },
+   "move": "Hex"
+  },
+  {
+   "id": "low-kick-weight",
+   "attacker": {
+    "species": "Conkeldurr",
+    "nature": "Adamant",
+    "sp": {
+     "atk": 32
+    },
+    "ability": "Guts"
+   },
+   "defender": {
+    "species": "Snorlax",
+    "ability": "Thick Fat"
+   },
+   "move": "Low Kick"
+  },
+  {
+   "id": "heavy-slam",
+   "attacker": {
+    "species": "Aggron-Mega",
+    "nature": "Adamant",
+    "sp": {
+     "atk": 32
+    },
+    "ability": "Filter"
+   },
+   "defender": {
+    "species": "Garchomp",
+    "nature": "Jolly",
+    "sp": {
+     "atk": 32,
+     "spe": 32,
+     "hp": 2
+    }
+   },
+   "move": "Heavy Slam"
+  },
+  {
+   "id": "body-press-def-boost",
+   "attacker": {
+    "species": "Aggron-Mega",
+    "nature": "Impish",
+    "sp": {
+     "def": 32
+    },
+    "ability": "Filter",
+    "boosts": {
+     "def": 1
+    }
+   },
+   "defender": {
+    "species": "Incineroar",
+    "nature": "Careful",
+    "sp": {
+     "hp": 32,
+     "def": 16,
+     "spd": 16,
+     "atk": 2
+    }
+   },
+   "move": "Body Press"
+  },
+  {
+   "id": "foul-play",
+   "attacker": {
+    "species": "Incineroar",
+    "nature": "Careful",
+    "sp": {
+     "hp": 32,
+     "def": 16,
+     "spd": 16,
+     "atk": 2
+    },
+    "ability": "Blaze"
+   },
+   "defender": {
+    "species": "Kingambit",
+    "nature": "Adamant",
+    "sp": {
+     "hp": 32,
+     "atk": 32,
+     "def": 2
+    },
+    "ability": "Defiant"
+   },
+   "move": "Foul Play"
+  },
+  {
+   "id": "psyshock",
+   "attacker": {
+    "species": "Meowstic",
+    "nature": "Modest",
+    "sp": {
+     "spa": 32
+    },
+    "ability": "Prankster"
+   },
+   "defender": {
+    "species": "Incineroar",
+    "nature": "Careful",
+    "sp": {
+     "hp": 32,
+     "def": 16,
+     "spd": 16,
+     "atk": 2
+    }
+   },
+   "move": "Psyshock"
+  },
+  {
+   "id": "sacred-sword-ignores-def",
+   "attacker": {
+    "species": "Gallade",
+    "nature": "Adamant",
+    "sp": {
+     "atk": 32
+    },
+    "ability": "Justified"
+   },
+   "defender": {
+    "species": "Kingambit",
+    "nature": "Adamant",
+    "sp": {
+     "hp": 32,
+     "atk": 32,
+     "def": 2
+    },
+    "ability": "Defiant",
+    "boosts": {
+     "def": 2
+    }
+   },
+   "move": "Sacred Sword"
+  },
+  {
+   "id": "freeze-dry-water",
+   "attacker": {
+    "species": "Aurorus",
+    "nature": "Modest",
+    "sp": {
+     "spa": 32
+    },
+    "ability": "Refrigerate"
+   },
+   "defender": {
+    "species": "Pelipper",
+    "nature": "Modest",
+    "sp": {
+     "hp": 32,
+     "spa": 32,
+     "spe": 2
+    },
+    "ability": "Drizzle"
+   },
+   "move": "Freeze-Dry"
+  },
+  {
+   "id": "electro-shot-boost",
+   "attacker": {
+    "species": "Archaludon",
+    "nature": "Modest",
+    "sp": {
+     "spa": 32
+    },
+    "ability": "Stamina"
+   },
+   "defender": {
+    "species": "Incineroar",
+    "nature": "Careful",
+    "sp": {
+     "hp": 32,
+     "def": 16,
+     "spd": 16,
+     "atk": 2
+    }
+   },
+   "move": "Electro Shot"
+  },
+  {
+   "id": "eruption-half-hp",
+   "attacker": {
+    "species": "Camerupt",
+    "nature": "Modest",
+    "sp": {
+     "spa": 32
+    },
+    "ability": "Solid Rock",
+    "cur_hp": 100
+   },
+   "defender": {
+    "species": "Kingambit",
+    "nature": "Adamant",
+    "sp": {
+     "hp": 32,
+     "atk": 32,
+     "def": 2
+    },
+    "ability": "Defiant"
+   },
+   "move": "Eruption"
+  },
+  {
+   "id": "stored-power",
+   "attacker": {
+    "species": "Meowstic",
+    "nature": "Modest",
+    "sp": {
+     "spa": 32
+    },
+    "ability": "Prankster",
+    "boosts": {
+     "spa": 2,
+     "spd": 1
+    }
+   },
+   "defender": {
+    "species": "Incineroar",
+    "nature": "Careful",
+    "sp": {
+     "hp": 32,
+     "def": 16,
+     "spd": 16,
+     "atk": 2
+    }
+   },
+   "move": "Stored Power"
+  },
+  {
+   "id": "unsupported-multihit",
+   "attacker": {
+    "species": "Dragonite",
+    "nature": "Adamant",
+    "sp": {
+     "atk": 32,
+     "hp": 32,
+     "spe": 2
+    },
+    "ability": "Multiscale"
+   },
+   "defender": {
+    "species": "Incineroar",
+    "nature": "Careful",
+    "sp": {
+     "hp": 32,
+     "def": 16,
+     "spd": 16,
+     "atk": 2
+    }
+   },
+   "move": "Dragon Darts",
+   "expect_unsupported": true
+  }
+ ]
+}

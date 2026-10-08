@@ -82,6 +82,14 @@ class Move(_Row):
     flags: list[str]
     short_desc: str | None
     legal: bool
+    multihit: list[int] | None
+    has_secondary: bool
+    recoil: bool
+    has_crash_damage: bool
+    override_offensive_stat: str | None
+    override_defensive_stat: str | None
+    ignore_defensive: bool
+    will_crit: bool
 
 
 class Ability(_Row):
