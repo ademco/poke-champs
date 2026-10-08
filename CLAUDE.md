@@ -26,7 +26,18 @@ Adem is building this to get AI Engineer roles and must be able to explain every
 - Previous regulations: M-A (launch to 2026-06-17), M-B (2026-06-17 to 2026-09-09).
 - **Primary roster source: Pokémon Showdown** (MIT). The `champions` mod = Reg M-C; `championsregmb` = Reg M-B. Formats include `[Gen 9 Champions] VGC 2026 Reg M-C` (doubles) and `[Gen 9 Champions] BSS Reg M-C` (singles).
 - From Showdown's `formats-data.ts`, M-C has 349 legal entries (forms and Megas counted separately) vs 314 for M-B. That's +35 entries = 23 new species + Alolan Persian + 6 new Megas (Absol-Mega-Z, Garchomp-Mega-Z, Lucario-Mega-Z, Salamence-Mega, Golisopod-Mega, Baxcalibur-Mega) + cosmetic/alt forms. Nothing was removed. This explains why news sites quote 22, 24, 29, or 34 "new Pokémon".
-- **Tera does not exist in Champions.** Mega Evolution does. Champions uses Stat Points (SP) instead of EVs; verify exact SP rules from sources before implementing in phase 2.
+- **Tera does not exist in Champions** (`canTerastallize` returns null). Mega Evolution does, through held Mega Stones.
+- **Stat Points (verified from Showdown code):** 66 total, max 32 per stat, IVs fixed at 31, level 50. `HP = base + SP + 75`; other stats = `floor((base + SP + 20) × nature)`. Showdown team text stores SP on the `EVs:` line.
+- **Rules:** bring 6, pick 4 (doubles) or 3 (singles); Species Clause; Item Clause; Mythicals and Restricted Legendaries banned. Status changes vs mainline: full paralysis 1/8, sleep 1–2 turns, freeze guaranteed to thaw by turn 3. Many mainline items are absent (e.g. Choice Specs/Band, Assault Vest, Booster Energy); Choice Scarf and Life Orb are present.
+- Full research notes: `docs/DATA_SOURCES.md`. The cloud sandbox can't reach smogon.com, Bulbapedia, Pikalytics, Limitless or pokemon.com; verify those from Adem's Mac.
+
+## Decisions so far
+
+- **Formats: both** VGC doubles and singles (BSS). Every record and eval case carries `game_type`.
+- **No legacy code** from v1. Fresh repo.
+- **No Gemini.** Generation and embedding providers are chosen before phase 3; nothing before phase 3 calls a model.
+- **Repo is public.** Mind attribution and licenses (Bulbapedia text stays out of git; it lives only in the database).
+- **Golden set:** Claude drafts it and Adem edits it. The rubric gets finalized together.
 - **Community repo `otterlyclueless/pokemon-champions-data` is stale:** last updated 2026-04-16 (Reg M-A, 258 entries, no M-C additions). Its move/learnset data was scraped from Serebii, so the CC BY 4.0 label is doubtful for those parts. Use it only as a cross-check against Showdown, never as a primary source.
 
 ## Data source rules
@@ -35,11 +46,11 @@ Adem is building this to get AI Engineer roles and must be able to explain every
 - Check each source's terms before ingesting and record the findings in `docs/DATA_SOURCES.md`.
 - **Never bulk-copy prose** from sources without an open license (Serebii, Smogon strategy write-ups, Pikalytics articles). Facts and stats through permitted exports are fine.
 - Say what is and isn't verified, especially where Champions differs from mainline games.
-- Damage calc: research porting the formula to Python and testing it against `@smogon/calc` vs calling `@smogon/calc` through Node. Document known gaps honestly (e.g. reported missing item modifiers like Life Orb in Champions mode). **Ask before installing Node.**
+- Damage calc: `@smogon/calc` 0.12.0 (MIT) has a Champions mode, and its current source handles Life Orb (the reported gap looks fixed; confirm in phase 2 tests). Plan: port the formula to Python and check it against `@smogon/calc` fixtures generated in CI with `actions/setup-node`. **Ask before installing Node on Adem's Mac.**
 
 ## Stack
 
-Python 3.12 in a project-local venv (`.venv/`) · Flask REST API · PostgreSQL + pgvector in Docker (small memory limits) · Gemini API free tier (generation + embeddings) during dev · hybrid retrieval (keyword + vector) + reranking · JSON-schema structured outputs · LangGraph agent · lightweight knowledge graph (Postgres tables or networkx, not Neo4j, on 8 GB) · eval harness + LLM-as-judge · Docker · Cloud Run via Terraform · Cloud Logging · Vertex AI (phase 11).
+Python 3.12 in a project-local venv (`.venv/`) · Flask REST API · PostgreSQL + pgvector in Docker (small memory limits) · LLM + embeddings provider TBD before phase 3 (not Gemini) · hybrid retrieval (keyword + vector) + reranking · JSON-schema structured outputs · LangGraph agent · lightweight knowledge graph (Postgres tables or networkx, not Neo4j, on 8 GB) · eval harness + LLM-as-judge · Docker · Cloud Run via Terraform · Cloud Logging · Vertex AI (phase 11).
 
 **Machine constraints:** Mac mini M2, 8 GB RAM. Keep everything light. No local LLMs. Before suggesting any local embedding model or reranker, state its memory footprint.
 

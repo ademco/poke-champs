@@ -1,0 +1,27 @@
+# PokéChamp v2
+
+A grounded assistant for **Pokémon Champions** (the official VGC game for the 2026 season). It answers mechanics and meta questions with cited sources and analyzes Showdown-format teams. Every claim states its regulation and its source.
+
+> 🚧 Work in progress, built in phases. See [`docs/BUILD_LOG.md`](docs/BUILD_LOG.md).
+
+## Design in one paragraph
+
+Structured facts (stats, legality, learnsets, usage) live in PostgreSQL and are reached through **tools**. Unstructured text (mechanics explanations) goes through **RAG** with pgvector. The LLM never does math: stat, speed, type and damage calculations are deterministic, unit-tested Python. Every record carries `source`, `license`, `regulation` and `retrieved_at`.
+
+## Quick start
+
+```bash
+python3.12 -m venv .venv && source .venv/bin/activate
+pip install -e ".[dev]"
+pytest
+```
+
+## Docs
+
+- [`docs/DATA_SOURCES.md`](docs/DATA_SOURCES.md): every source, its license, and what we use it for
+- [`docs/RUBRIC.md`](docs/RUBRIC.md): answer-quality rubric for the LLM judge
+- [`evals/golden_set.yaml`](evals/golden_set.yaml): the fixed test set every phase is graded on
+
+## Credits
+
+Game data from [Pokémon Showdown](https://github.com/smogon/pokemon-showdown) (MIT). Pokémon and all related names are trademarks of Nintendo, Creatures Inc. and GAME FREAK inc. This is an unofficial, non-commercial fan project.
