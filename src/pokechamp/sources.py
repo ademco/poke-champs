@@ -43,6 +43,14 @@ SOURCES: dict[str, Source] = {
             "approved",
         ),
         Source(
+            "project_notes",
+            "PokéChamp mechanics notes (data/corpus/notes/)",
+            "https://github.com/ademco/poke-champs/tree/main/data/corpus/notes",
+            "Project-authored; facts summarized from the MIT sources each note cites",
+            "Short mechanics explanations for RAG, each citing the code it was verified from",
+            "approved",
+        ),
+        Source(
             "community_data",
             "otterlyclueless/pokemon-champions-data",
             "https://github.com/otterlyclueless/pokemon-champions-data",

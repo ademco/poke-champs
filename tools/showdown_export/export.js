@@ -19,6 +19,24 @@ if (!SHOWDOWN_DIR || !COMMIT) {
 	process.exit(2);
 }
 
+// For RAG text: which entries does the Champions mod change in *behavior* (not
+// just legality/power/accuracy/PP)? If Showdown has no Champions-specific
+// description for those, the text may describe mainline behavior; we flag it.
+// Captured BEFORE the Dex loads: the Dex merges these tables in place, after
+// which every entry looks "changed".
+const NUMERIC_ONLY = new Set(['inherit', 'isNonstandard', 'basePower', 'accuracy', 'pp']);
+const BEHAVIOR_CHANGED = {};
+for (const [table, file, key] of [
+	['moves', 'moves', 'Moves'], ['abilities', 'abilities', 'Abilities'], ['items', 'items', 'Items'],
+]) {
+	const mod = require(path.join(SHOWDOWN_DIR, `dist/data/mods/champions/${file}`))[key];
+	BEHAVIOR_CHANGED[table] = new Set(
+		Object.entries(mod)
+			.filter(([, entry]) => Object.keys(entry).some(field => !NUMERIC_ONLY.has(field)))
+			.map(([id]) => id)
+	);
+}
+
 const {Dex, TeamValidator} = require(path.join(SHOWDOWN_DIR, 'dist/sim'));
 
 // Current regulation only (project scope). Update these three lines for M-D.
@@ -42,6 +60,15 @@ const toID = name => name.toLowerCase().replace(/[^a-z0-9]/g, '');
 
 const byId = (a, b) => (a.id < b.id ? -1 : a.id > b.id ? 1 : 0);
 const keep = entry => entry.exists && !EXCLUDED_NONSTANDARD.has(entry.isNonstandard);
+
+const textFields = (table, id) => {
+	const entry = text[table[0].toUpperCase() + table.slice(1)][id] || {};
+	return {
+		desc: entry.desc ?? entry.shortDesc ?? null,
+		behavior_changed: BEHAVIOR_CHANGED[table].has(id),
+		champions_text: Boolean(entry.champions), // Showdown wrote a Champions-specific description
+	};
+};
 
 // Showdown says "X does not exist in Gen 9" for anything outside the Champions
 // roster; reword it so users (and the LLM) aren't told a real Pokémon doesn't exist.
@@ -103,6 +130,7 @@ const moves = dex.moves.all().filter(keep).map(m => ({
 	target: m.target,
 	flags: Object.keys(m.flags).sort(),
 	short_desc: text.Moves[m.id]?.shortDesc ?? null,
+	...textFields('moves', m.id),
 	legal: !m.isNonstandard,
 	// Fields the damage calculator needs (phase 2).
 	multihit: m.multihit === undefined ? null : [].concat(m.multihit), // [2] or [2, 5]
@@ -119,6 +147,7 @@ const abilities = dex.abilities.all().filter(keep).sort(byId).map(a => ({
 	id: a.id,
 	name: a.name,
 	short_desc: text.Abilities[a.id]?.shortDesc ?? null,
+	...textFields('abilities', a.id),
 	legal: !a.isNonstandard,
 }));
 
@@ -126,6 +155,7 @@ const items = dex.items.all().filter(keep).sort(byId).map(i => ({
 	id: i.id,
 	name: i.name,
 	short_desc: text.Items[i.id]?.shortDesc ?? null,
+	...textFields('items', i.id),
 	mega_stone: i.megaStone || null, // {"Garchomp": "Garchomp-Mega-Z"}
 	legal: !i.isNonstandard,
 }));

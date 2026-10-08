@@ -132,3 +132,44 @@ Adem decided the assistant covers **only the live regulation** (M-C now) and get
    Some mechanics need state the calculator doesn't have (how many hits Scale Shot lands, whether Parental Bond's second hit applies). Returning a single-hit number for a multi-hit move would be confidently wrong, and in a grounded assistant a refusal the agent can explain beats a hallucinated number. The unsupported list is explicit and documented.
 3. *What's the point of the `Facts` interface?*
    The tools don't care where facts come from. Unit tests use the JSON snapshot (milliseconds, no database), the app uses Postgres, and one test asserts both give the same answers. It's the repository pattern, the same idea as Spring Data, and it keeps the math testable in isolation.
+
+---
+
+## Phase 3: unstructured corpus, chunking, embeddings, pgvector
+
+**Built** (`src/pokechamp/rag/`)
+- `corpus.py`: **904 documents**: Showdown descriptions of 515 legal moves, 215 abilities a legal Pokémon can have, and 166 legal items (MIT), plus 8 project-written mechanics notes (`data/corpus/notes/`), each citing the code it was verified from.
+- `chunking.py`: heading-aware splitting, a ~160-word cap, one-sentence overlap, and a "Title > Section" prefix. → **926 chunks** (median 21 words, max 180).
+- `embeddings.py`: an `Embedder` interface. `FastEmbedEmbedder` runs BAAI/bge-small-en-v1.5 (384 dimensions, ONNX on CPU, ~180 MB of packages, no PyTorch). `HashingEmbedder` is a deterministic test double.
+- Migration `003`: the `vector` extension, `documents` and `chunks` tables, an HNSW cosine index, and a generated `tsvector` column with a GIN index (ready for Phase 4's hybrid search).
+- `index.py`: an atomic, idempotent load (one transaction, embedding done *before* it opens). `search.py`: cosine top-k, filtered to the live regulation, with `hnsw.iterative_scan`.
+- CI: model cache, `REQUIRE_MODEL=1`, a real-model index build with memory measurement, and a retrieval smoke test.
+
+**Metrics (real model, measured in CI on a 2-vCPU GitHub runner)**
+| | Value |
+|---|---|
+| Embed + index 926 chunks | 42.7 s (43.9 s wall clock) |
+| Peak memory while indexing | **~1.05 GB RSS**. Fine on an 8 GB Mac, but higher than expected; the likely cause is 64-chunk batches (worth tuning, not urgent for a one-off batch job) |
+| Retrieval smoke test (6 obvious questions, top 5) | passed (≥5/6) |
+| "How long does sleep last in Champions?" → top hit | the status-conditions note's Sleep section, cosine 0.80 |
+| Hashing test-double, same question set (for contrast) | finds Sleep/Stat Points, but misses "what does Intimidate do": no semantics, only shared words |
+
+**Findings along the way**
+- Showdown's text data has **Champions-specific descriptions** (`champions:` entries) for 17 moves, 2 abilities and 1 item, such as "Moonblast: 10% chance". For **18** other entries the Champions mod changes behavior without updated text, so those chunks say the description may describe main-series behavior. That's honesty in the data itself.
+- A module-caching trap: Showdown's `Dex` merges mod tables *in place*, so reading them after loading made every entry look changed. They're now captured before the `Dex` loads.
+- fastembed's `query_embed` does **not** add BGE's query instruction (checked in the 0.9.0 source, not assumed). Whether the prefix helps is a Phase 4 experiment.
+- The cloud sandbox can't download the model (Hugging Face is blocked), so the real model runs in CI (cached) and on Adem's Mac. Unit tests use the hashing double.
+
+**Trade-offs**
+- *Local embeddings vs an API (Voyage).* Local means no key, no cost, no data leaving the machine, and reproducible results. The cost is ~1 GB of RAM while indexing and lower quality than the best hosted models. Phase 4 measures whether that quality gap matters on *our* questions before paying for anything.
+- *HNSW at ~1k chunks.* An exact scan would be just as fast at this size. We use HNSW because it's what production uses, and its recall against an exact scan is measurable. `iterative_scan` keeps regulation filtering correct once several regulations share the table during a switchover.
+- *Numbers stay out of chunks.* Entity documents describe effects, not base power or legality. Otherwise the LLM could quote a number from retrieved text instead of calling the tool that owns it.
+- *Writing our own notes vs waiting for Bulbapedia.* The notes are short and each cites the code it was checked against. Bulbapedia (CC BY-NC-SA) can be added once its terms are confirmed.
+
+**Interview questions**
+1. *What is an embedding, and why cosine similarity?*
+   A model maps text to a vector (384 numbers here) so that texts with similar meaning point in similar directions. Cosine similarity compares the angle, ignoring length, which is what the model was trained for. Search becomes "embed the question, return the nearest chunk vectors".
+2. *How did you choose chunk size?*
+   Chunks are the unit of retrieval. Too big and one vector blurs several topics; too small and a chunk loses its context. I split on document structure (headings) first, capped at ~160 words, overlapped by one sentence so facts on a boundary survive, and prefixed each chunk with "Title > Section" so a chunk saying "it lasts two turns" still says *what* lasts two turns. Phase 4 can vary these and measure.
+3. *What does the HNSW index trade off, and what goes wrong with filters?*
+   HNSW is a graph you navigate to find *approximate* nearest neighbours: far fewer comparisons, at the cost of sometimes missing the true nearest one. Filters are applied after the graph search, so a selective `WHERE` can return fewer than k rows. pgvector 0.8's `iterative_scan` keeps searching until enough rows pass the filter.
