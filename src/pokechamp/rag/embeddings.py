@@ -82,6 +82,29 @@ class HashingEmbedder:
         return self._vector(text)
 
 
+# BGE v1.5's optional instruction for short queries that retrieve passages
+# (from the BAAI model card). Documents are embedded without it.
+BGE_QUERY_INSTRUCTION = "Represent this sentence for searching relevant passages: "
+
+
+class PrefixedEmbedder:
+    """Wraps an embedder and prepends an instruction to queries only.
+
+    Keeps the wrapped model's name: the stored document vectors are unchanged,
+    so the same index serves both variants (a phase-4 experiment).
+    """
+
+    def __init__(self, inner: Embedder, prefix: str = BGE_QUERY_INSTRUCTION):
+        self._inner, self._prefix = inner, prefix
+        self.name, self.dim = inner.name, inner.dim
+
+    def embed_documents(self, texts: Sequence[str]) -> list[list[float]]:
+        return self._inner.embed_documents(texts)
+
+    def embed_query(self, text: str) -> list[float]:
+        return self._inner.embed_query(self._prefix + text)
+
+
 def get_embedder(kind: str = "fastembed") -> Embedder:
     if kind == "fastembed":
         return FastEmbedEmbedder()

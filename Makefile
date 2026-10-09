@@ -7,7 +7,7 @@ SHOWDOWN_COMMIT ?= 3065d24d698bc7f88a401c6e6d0cb42e5684d1ea
 SMOGON_CALC_VERSION ?= 0.12.0
 
 help:  ## list targets
-	@grep -E '^[a-z-]+:.*##' $(MAKEFILE_LIST) | awk -F':.*## ' '{printf "  %-10s %s\n", $$1, $$2}'
+	@grep -E '^[a-z-]+:.*##' $(MAKEFILE_LIST) | awk -F':.*## ' '{printf "  %-15s %s\n", $$1, $$2}'
 
 setup:  ## create .venv and install dependencies
 	python3.12 -m venv .venv && .venv/bin/pip install -q -e ".[dev]"
@@ -27,8 +27,11 @@ ingest:  ## load the Showdown snapshot into Postgres (idempotent)
 index:  ## build the RAG index (chunk + embed + store); first run downloads bge-small (~130 MB)
 	$(PY) -m pokechamp.rag.index
 
-search:  ## try a question against the RAG index: make search Q="how long does sleep last?"
+search:  ## try a question (hybrid search by default; --mode vector|keyword|rerank): make search Q="how long does sleep last?"
 	$(PY) -m pokechamp.rag.search "$(Q)"
+
+eval-retrieval:  ## score every search configuration on evals/retrieval_set.yaml (needs `make index`)
+	$(PY) -m pokechamp.evals.retrieval
 
 checks:  ## run golden-set auto-checks against the database
 	$(PY) -m pokechamp.evals.auto_checks
@@ -56,4 +59,4 @@ fixtures:  ## regenerate reference answers: Showdown validator + @smogon/calc (N
 	  sh -c 'npm init -y >/dev/null && npm i --silent @smogon/calc@$(SMOGON_CALC_VERSION) && \
 	  NODE_PATH=/work/.cache/calc/node_modules node /work/tools/calc_fixtures/generate.js /work'
 
-.PHONY: help setup db-up db-down migrate ingest index search checks test demo snapshot fixtures
+.PHONY: help setup db-up db-down migrate ingest index search eval-retrieval checks test demo snapshot fixtures

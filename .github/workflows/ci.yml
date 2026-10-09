@@ -42,11 +42,12 @@ jobs:
       - name: Install
         run: pip install -e ".[dev]"
 
-      # The bge-small model (~130 MB) downloads once, then comes from cache.
+      # bge-small (~130 MB) and the MiniLM reranker (~80 MB) download once,
+      # then come from cache.
       - uses: actions/cache@v6
         with:
           path: /home/runner/.cache/pokechamp/models
-          key: embed-model-bge-small-en-v1.5-fastembed-0.9.0
+          key: models-bge-small-en-v1.5+ms-marco-MiniLM-L-6-v2-fastembed-0.9.0
 
       - name: Lint
         run: ruff check .
@@ -69,4 +70,15 @@ jobs:
         run: |
           /usr/bin/time -v python -m pokechamp.rag.index 2> time.log
           grep -E "Maximum resident set size|Elapsed \(wall clock\)" time.log
-          python -m pokechamp.rag.search -k 3 "How long does sleep last in Champions?"
+          python -m pokechamp.rag.search -k 3 --mode vector "How long does sleep last in Champions?"
+
+      # Phase 4: every retrieval configuration on the labelled question set.
+      # The table also goes to the run's summary page. The gate fails CI if the
+      # default (hybrid) config's Recall@5 drops below 0.85 (measured: 0.90).
+      - name: Retrieval eval (real models) and memory
+        run: |
+          /usr/bin/time -v python -m pokechamp.evals.retrieval --json retrieval.json --fail-under 0.85 \
+            > retrieval.md 2> time.log || { cat retrieval.md time.log; exit 1; }
+          cat retrieval.md
+          grep -E "Maximum resident set size|Elapsed \(wall clock\)" time.log
+          cat retrieval.md >> "$GITHUB_STEP_SUMMARY"

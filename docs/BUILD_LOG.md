@@ -173,3 +173,67 @@ Adem decided the assistant covers **only the live regulation** (M-C now) and get
    Chunks are the unit of retrieval. Too big and one vector blurs several topics; too small and a chunk loses its context. I split on document structure (headings) first, capped at ~160 words, overlapped by one sentence so facts on a boundary survive, and prefixed each chunk with "Title > Section" so a chunk saying "it lasts two turns" still says *what* lasts two turns. Phase 4 can vary these and measure.
 3. *What does the HNSW index trade off, and what goes wrong with filters?*
    HNSW is a graph you navigate to find *approximate* nearest neighbours: far fewer comparisons, at the cost of sometimes missing the true nearest one. Filters are applied after the graph search, so a selective `WHERE` can return fewer than k rows. pgvector 0.8's `iterative_scan` keeps searching until enough rows pass the filter.
+
+## Phase 4: retrieval evaluation, hybrid search, reranking
+
+**Built**
+- `evals/retrieval_set.yaml`: **62 questions**, each labelled with the document(s) that answer it. There are 27 about the mechanics notes, 20 paraphrases that describe a move, ability or item without naming it, 8 exact unusual names, and 7 "what does X do" questions. Labels are at document level, so they survive changes to chunking.
+- `pokechamp.evals.retrieval`: runs every configuration over the set. It reports Recall@1/3/5/10, MRR@10, Recall@5 by question kind, the misses, median latency, and how often the HNSW index agrees with an exact scan. `make eval-retrieval` runs it.
+- `rag/search.py`:
+  - `keyword_search`: Postgres full-text search with OR'd terms, scored either with the built-in `ts_rank_cd` or with **IDF weighting** (the BM25 IDF formula).
+  - `hybrid_search`: vector + keyword lists fused with **Reciprocal Rank Fusion**.
+  - `reranked_search`: hybrid candidates rescored by a cross-encoder.
+- `rag/rerank.py`: `CrossEncoderReranker` (Xenova/ms-marco-MiniLM-L-6-v2: 22M parameters, ~80 MB, Apache-2.0, ONNX on CPU) and a test double.
+- `embeddings.PrefixedEmbedder`: BGE's optional query instruction, as an experiment.
+- Regulation-leak test: a poisoned copy of the whole corpus is tagged M-B, with every chunk carrying a marker word. No search mode returns it for M-C, and the reverse holds too.
+- CI gate: the job fails if the default (hybrid) configuration's Recall@5 drops below 0.85.
+
+**Metrics** (real models, 2-vCPU GitHub runner, 62 questions; one question = 0.016)
+
+| config | R@1 | R@3 | R@5 | R@10 | MRR@10 | median latency |
+|---|---|---|---|---|---|---|
+| vector (phase 3 baseline) | 0.69 | 0.79 | 0.82 | 0.85 | 0.75 | 20 ms |
+| vector + BGE query prefix | 0.73 | 0.82 | 0.87 | 0.92 | 0.79 | 22 ms |
+| keyword, `ts_rank_cd` | 0.52 | 0.58 | 0.63 | 0.73 | 0.57 | 10 ms |
+| keyword, IDF-weighted | 0.56 | 0.73 | 0.76 | 0.84 | 0.65 | 13 ms |
+| **hybrid (vector + IDF keyword, RRF): default** | 0.71 | 0.87 | **0.90** | 0.95 | 0.80 | 46 ms |
+| hybrid + BGE prefix | 0.69 | 0.82 | 0.89 | 0.95 | 0.78 | 46 ms |
+| hybrid + rerank (40 candidates) | 0.77 | 0.92 | 0.92 | 0.95 | 0.84 | 1039 ms |
+
+Recall@5 by question kind:
+
+| config | exact names (8) | named (7) | notes (27) | paraphrase (20) |
+|---|---|---|---|---|
+| vector | 1.00 | 1.00 | 0.89 | 0.60 |
+| keyword (IDF) | 1.00 | 0.86 | 0.89 | 0.45 |
+| hybrid | 1.00 | 1.00 | 0.96 | 0.75 |
+| hybrid + rerank | 1.00 | 1.00 | 0.96 | 0.80 |
+
+Other measurements:
+- HNSW vs exact scan, top-10 overlap: **1.000**. At ~1k chunks the approximate index loses nothing.
+- Peak memory for the whole eval (bge-small + reranker loaded together): **~1.16 GB RSS**, which fits the 8 GB Mac.
+
+**Decisions** (kept only what the numbers support)
+- **Hybrid becomes the default.** Recall@5 goes from 0.82 to 0.90 (+5 questions) and MRR from 0.75 to 0.80, for about 25 ms more per query. The two retrievers fail on different questions: vector misses "Can two of my Pokémon hold the same item?" (Item Clause wording), and keyword misses most paraphrases.
+- **IDF scoring replaces `ts_rank_cd`.** Postgres' built-in ranking has no notion of word rarity, so "battle" (in many chunks) counted as much as "kowtow" (in one). A unit test caught this before the metrics did. IDF weighting moved keyword Recall@5 from 0.63 to 0.76.
+- **No BGE query prefix.** It helps vector search alone (0.82 → 0.87) but not hybrid (0.90 → 0.89, MRR 0.80 → 0.78). Inside hybrid, keyword search already rescues the questions the prefix fixed. On a 62-question set these one-question differences are noise either way, so we keep the simpler option.
+- **Reranker built and measured, not on by default.** It gains 2 questions at R@5 and 4 at R@1, but costs ~1 s per query on CPU, 22× the latency. Phase 5 feeds the top 5 chunks to the LLM, where R@5 matters more than R@1. Phase 5's answer-quality eval decides whether the gain shows up in answers. Cheap knobs to try then: fewer candidates (20 instead of 40) and skipping the reranker when hybrid is already confident.
+
+**Remaining misses (hybrid)**, kept visible rather than tuned away:
+- p17 "ability that powers up weak moves" → Technician. Its description says "base power of 60 or less", with no word overlap and a vocabulary gap the small embedding model can't bridge.
+- p20 "priority move that only works if the target is attacking" → Sucker Punch. Same kind of gap.
+- p07 Follow Me, p13 Mold Breaker, p14 U-turn and n07 Item Clause rank 7–15: found, just not in the top 5.
+
+**Trade-offs and caveats**
+- *Who wrote the exam.* I wrote the questions knowing the corpus, which risks phrasing that matches the chunks. I avoided chunk wording on purpose and labelled paraphrases separately, but Adem's hand-written questions in Phase 5 are the real test. Rule: misses get new questions added, never the old ones reworded until they pass.
+- *Small set, coarse numbers.* With 62 questions, differences under ~3 questions (0.05) aren't meaningful. The big effects (hybrid +0.08, IDF +0.13) are clear.
+- *IDF computed at query time.* `ts_stat` scans every chunk's tsvector per query, which is fine at ~1k chunks (13 ms). At scale, document frequencies would be computed when the index is built, or we'd use a BM25 extension (ParadeDB, `pg_search`).
+- *RRF instead of weighted score blending.* Cosine similarity and IDF sums are on unrelated scales, and RRF uses only ranks, so there is nothing to calibrate. The cost is that it ignores how confident each retriever was.
+
+**Interview questions**
+1. *Why did hybrid search beat vector search here?*
+   Vector search matches meaning but blurs exact rare names. Keyword search matches exact words but can't bridge paraphrases. Their misses barely overlap: keyword alone found 0.45 of paraphrases, vector 0.60, the fusion 0.75. RRF adds 1/(60 + rank) from each list, so a chunk ranked well by either one rises, and one ranked well by both rises most, with no need to put cosine and keyword scores on the same scale.
+2. *What do Recall@k and MRR tell you, and which matters for RAG?*
+   Recall@k is the share of questions whose right document is anywhere in the top k. MRR averages 1/rank of the first right document, so it rewards putting the answer first. For RAG, the LLM reads the top k chunks, so Recall@k at the k you feed it (5 here) is the main metric. MRR matters when context is tight or the model over-trusts the first chunk.
+3. *What is a cross-encoder reranker, and why not always use it?*
+   A bi-encoder embeds the question and chunk separately, which is what makes index search fast. A cross-encoder reads them together and scores the pair, which is more accurate but needs one model pass per candidate, so it only reorders a shortlist. Here it raised R@1 from 0.71 to 0.77 but took ~1 s per query on CPU, so it stays optional until the answer evals show it changes answers.
