@@ -55,6 +55,10 @@ All math lives in `src/pokechamp/tools/` and reads facts through the `Facts` int
 
 `src/pokechamp/rag/`: `corpus` (Showdown descriptions of legal moves/abilities/items + `data/corpus/notes/*.md`; entity text deliberately omits tool-owned numbers; descriptions whose behavior changed in Champions without Champions-specific text carry a warning), `chunking` (heading-aware, ~160-word cap, 1-sentence overlap, "Title > Section" prefix), `embeddings` (`FastEmbedEmbedder` = bge-small-en-v1.5, 384-d, ONNX/CPU; `HashingEmbedder` = test double only), `index` (atomic load into `documents`/`chunks` with pgvector HNSW + generated tsvector), `search` (vector, keyword with IDF scoring, **hybrid RRF = default**, optional cross-encoder `rerank`; all regulation-filtered, `hnsw.iterative_scan`). Retrieval quality is measured on `evals/retrieval_set.yaml` (62 doc-labelled questions) by `pokechamp.evals.retrieval`; CI fails if hybrid Recall@5 < 0.85. Don't tune the question set to the system: add new questions rather than rewording misses. The cloud sandbox can't download the model (Hugging Face blocked); CI caches it and runs the `model`-marked tests with `REQUIRE_MODEL=1`. Mechanics notes must cite the code they were verified from.
 
+## MVP (phase 5)
+
+`make web` serves the app (Flask, `src/pokechamp/web/`): **team analysis** (`pokechamp.analyze`, deterministic, works without an API key) and **cited questions** (`pokechamp.answer`: fact cards + hybrid chunks → Claude Haiku 5.5 with a JSON-schema answer → citation checks). `make ask`, `make analyze`, `make eval-answers` (costs money; ~$0.25/run). Tests use `FakeLLM`; CI never calls the API. `ANTHROPIC_API_KEY` lives in `.env` only. Adem prioritised a working MVP over extras (2026-10-09). There is no Gemini anywhere in this project.
+
 ## Data source rules
 
 - **Whitelist only. No open web scraping.** Allowed: Showdown data files (MIT), pokemon-champions-data (CC BY 4.0, cross-check only), Bulbapedia mechanics pages (CC BY-NC-SA, with attribution), Smogon monthly stats, and Pikalytics/Limitless **only if their terms allow it**.

@@ -1,6 +1,9 @@
 # One-word commands for the common tasks. Run `make help` to list them.
 .DEFAULT_GOAL := help
 PY := .venv/bin/python
+# Load .env (DATABASE_URL, ANTHROPIC_API_KEY) if present and pass it to commands.
+-include .env
+export
 # Pinned Showdown commit the committed snapshot was exported from.
 SHOWDOWN_COMMIT ?= 3065d24d698bc7f88a401c6e6d0cb42e5684d1ea
 # Damage-calc version our Python port is tested against.
@@ -29,6 +32,18 @@ index:  ## build the RAG index (chunk + embed + store); first run downloads bge-
 
 search:  ## try a question (hybrid search by default; --mode vector|keyword|rerank): make search Q="how long does sleep last?"
 	$(PY) -m pokechamp.rag.search "$(Q)"
+
+analyze:  ## analyze a team, no API key needed: make analyze FILE=team.txt [SINGLES=1]
+	$(PY) -m pokechamp.analyze "$(FILE)" $(if $(SINGLES),--singles)
+
+ask:  ## grounded, cited answer (needs ANTHROPIC_API_KEY in .env): make ask Q="..."
+	$(PY) -m pokechamp.answer.pipeline "$(Q)"
+
+web:  ## the MVP web app at http://localhost:5000 (team analysis + questions)
+	$(PY) -m pokechamp.web.app
+
+eval-answers:  ## answer-quality + grounding eval (calls the API, ~$0.25/run on Haiku)
+	$(PY) -m pokechamp.evals.answers --out evals/results/answers.json
 
 eval-retrieval:  ## score every search configuration on evals/retrieval_set.yaml (needs `make index`)
 	$(PY) -m pokechamp.evals.retrieval
@@ -59,4 +74,4 @@ fixtures:  ## regenerate reference answers: Showdown validator + @smogon/calc (N
 	  sh -c 'npm init -y >/dev/null && npm i --silent @smogon/calc@$(SMOGON_CALC_VERSION) && \
 	  NODE_PATH=/work/.cache/calc/node_modules node /work/tools/calc_fixtures/generate.js /work'
 
-.PHONY: help setup db-up db-down migrate ingest index search eval-retrieval checks test demo snapshot fixtures
+.PHONY: help setup db-up db-down migrate ingest index search analyze ask web eval-answers eval-retrieval checks test demo snapshot fixtures

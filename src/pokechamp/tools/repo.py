@@ -93,6 +93,7 @@ class Facts(Protocol):
     def learnset(self, species_id: str) -> frozenset[str]: ...
     def type_multiplier(self, attacking: str, defending: str) -> float: ...
     def format(self, game_type: str) -> FormatInfo: ...
+    def entity_ids(self) -> dict[str, frozenset[str]]: ...
 
 
 def _species(d: dict) -> SpeciesInfo:
@@ -188,6 +189,14 @@ class SnapshotFacts:
     def format(self, game_type: str) -> FormatInfo:
         return next(_format(f.model_dump()) for f in self._snap.formats if f.game_type == game_type)
 
+    def entity_ids(self) -> dict[str, frozenset[str]]:
+        """Every species/move/item id we know (legal or not), for name linking."""
+        return {
+            "species": frozenset(self._species),
+            "move": frozenset(self._moves),
+            "item": frozenset(self._items),
+        }
+
 
 class DbFacts:
     """Facts from Postgres, scoped to one regulation (the live one by default)."""
@@ -247,3 +256,17 @@ class DbFacts:
         return _format(
             self._one("SELECT * FROM formats WHERE regulation = %s AND game_type = %s", game_type)
         )
+
+    @cached_property
+    def _entity_ids(self) -> dict[str, frozenset[str]]:
+        def ids(table: str) -> frozenset[str]:
+            rows = self._conn.execute(
+                f"SELECT id FROM {table} WHERE regulation = %s", (self.regulation,)
+            ).fetchall()
+            return frozenset(r[0] for r in rows)
+
+        return {"species": ids("species"), "move": ids("moves"), "item": ids("items")}
+
+    def entity_ids(self) -> dict[str, frozenset[str]]:
+        """Every species/move/item id we know (legal or not), for name linking."""
+        return self._entity_ids

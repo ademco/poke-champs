@@ -15,10 +15,20 @@ Needs Python 3.12, Docker and git (no Node; it only runs inside Docker).
 ```bash
 make setup   # .venv + dependencies
 make demo    # Postgres up -> schema -> Showdown data -> RAG index -> golden-set checks
-make search Q="how long does sleep last?"   # try the search (hybrid: vector + keyword)
-make eval-retrieval   # score every search configuration on 62 labelled questions
-make test    # lint + tests (DB tests run when Postgres is up)
-make help    # everything else
+make web     # the app: http://localhost:5000
+```
+
+In the app:
+- **Analyze a team** (works offline, no API key): paste a Showdown export and get legality problems, final stats, Speed order (with Tailwind and Scarf) and shared type weaknesses. Every number comes from deterministic tools, never from an LLM.
+- **Ask a question**: a cited answer from Claude, grounded in the mechanics notes and Showdown data. Needs `ANTHROPIC_API_KEY` in `.env` (`cp .env.example .env`, then paste your key). A question costs well under $0.01 on Claude Haiku 5.5.
+
+Terminal versions and the rest:
+```bash
+make analyze FILE=team.txt                 # team report in the terminal
+make ask Q="how long does sleep last?"     # cited answer (needs the key)
+make search Q="..."                        # raw search results (hybrid: vector + keyword)
+make test                                  # lint + tests (DB tests run when Postgres is up)
+make help                                  # everything else
 ```
 
 ## Docs

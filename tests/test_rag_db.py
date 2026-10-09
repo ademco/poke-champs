@@ -128,3 +128,14 @@ def test_reranked_search_returns_k_cited_hits(conn, indexed):
     hits = reranked_search(conn, embedder, OverlapReranker(), "sleep turns champions", k=4)
     assert len(hits) == 4
     assert all(h.regulation == "M-C" and h.source and h.ref for h in hits)
+
+
+def test_gather_puts_fact_cards_before_retrieved_chunks(conn, indexed):
+    from pokechamp.answer.evidence import gather
+    from pokechamp.tools.repo import SnapshotFacts
+
+    _, embedder = indexed
+    ev = gather(conn, SnapshotFacts(), embedder, "Is Amoonguss legal? How long does sleep last?")
+    assert [e.id for e in ev] == ["F1", "S1", "S2", "S3", "S4", "S5"]
+    assert ev[0].title == "Amoonguss" and "NO" in ev[0].text
+    assert all(e.regulation == "M-C" for e in ev)
