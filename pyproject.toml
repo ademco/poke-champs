@@ -9,7 +9,9 @@ description = "Grounded RAG + agent assistant for Pokémon Champions (VGC 2026)"
 requires-python = ">=3.12"
 # Exact pins: reproducible CI. Versions checked with `pip index versions` on 2026-10-08.
 dependencies = [
-    "fastembed==0.9.0",  # local embeddings via ONNX runtime; no PyTorch (~180 MB installed)
+    "anthropic==1.12.1",  # Claude API SDK (phase 5+); only called when ANTHROPIC_API_KEY is set
+    "fastembed==0.9.0",
+    "flask==3.1.3",  # web app + REST API (MVP)  # local embeddings via ONNX runtime; no PyTorch (~180 MB installed)
     "numpy==2.5.3",
     "pgvector==0.5.0",  # psycopg adapter for the vector type
     "psycopg[binary]==3.3.6",
@@ -27,7 +29,7 @@ dev = [
 where = ["src"]
 
 [tool.setuptools.package-data]
-pokechamp = ["db/migrations/*.sql"]
+pokechamp = ["db/migrations/*.sql", "web/*.html"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

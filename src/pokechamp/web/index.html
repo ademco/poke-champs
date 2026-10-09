@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PokéChamp</title>
+<style>
+  :root { --bg:#f7f7f8; --card:#fff; --text:#1d1d1f; --muted:#6b6b70; --accent:#c0392b; --border:#ddd; }
+  @media (prefers-color-scheme: dark) {
+    :root { --bg:#151517; --card:#1f1f22; --text:#ececef; --muted:#9a9aa0; --accent:#ff6b5b; --border:#333; }
+  }
+  * { box-sizing: border-box; }
+  body { margin:0; font:16px/1.5 system-ui, sans-serif; background:var(--bg); color:var(--text); }
+  main { max-width: 860px; margin: 0 auto; padding: 24px 16px 48px; }
+  h1 { margin: 0 0 4px; font-size: 1.6rem; }
+  .sub { color: var(--muted); margin: 0 0 24px; }
+  section { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 16px; margin-bottom: 20px; }
+  h2 { margin: 0 0 8px; font-size: 1.1rem; }
+  textarea, input[type=text] { width:100%; font: 14px/1.4 ui-monospace, monospace; padding:8px; border:1px solid var(--border); border-radius:6px; background:var(--bg); color:var(--text); }
+  textarea { min-height: 220px; }
+  .row { display:flex; gap:12px; align-items:center; margin-top:10px; flex-wrap: wrap; }
+  button { background:var(--accent); color:#fff; border:0; border-radius:6px; padding:8px 16px; font-size:15px; cursor:pointer; }
+  button:disabled { opacity: .6; cursor: wait; }
+  pre { white-space: pre-wrap; background: var(--bg); padding: 12px; border-radius: 6px; overflow-x: auto; font-size: 13px; }
+  .src { font-size: 13px; color: var(--muted); }
+  .err { color: var(--accent); }
+</style>
+</head>
+<body>
+<main>
+  <h1>PokéChamp</h1>
+  <p class="sub" id="status">Pokémon Champions assistant. Checking server…</p>
+
+  <section>
+    <h2>Analyze a team</h2>
+    <p class="src">Paste a Showdown export. Legality, stats, Speed order and shared weaknesses are computed from data, no AI involved.</p>
+    <textarea id="team" placeholder="Incineroar @ Sitrus Berry&#10;Ability: Intimidate&#10;EVs: 32 HP / 2 Atk / 32 SpD&#10;Careful Nature&#10;- Fake Out&#10;- Flare Blitz&#10;..."></textarea>
+    <div class="row">
+      <label><input type="radio" name="gt" value="doubles" checked> Doubles (VGC)</label>
+      <label><input type="radio" name="gt" value="singles"> Singles (BSS)</label>
+      <button id="analyze">Analyze</button>
+    </div>
+    <pre id="team-out" hidden></pre>
+  </section>
+
+  <section>
+    <h2>Ask a question</h2>
+    <p class="src">Answers cite their sources and cover the current regulation only.</p>
+    <input type="text" id="q" placeholder="How long does sleep last in Champions?">
+    <div class="row"><button id="ask">Ask</button></div>
+    <div id="ask-out"></div>
+  </section>
+</main>
+<script>
+const $ = (id) => document.getElementById(id);
+const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+
+async function post(url, body) {
+  const r = await fetch(url, {method: "POST", headers: {"Content-Type": "application/json"}, body: JSON.stringify(body)});
+  const data = await r.json().catch(() => ({error: `HTTP ${r.status}`}));
+  if (!r.ok) throw new Error(data.error || `HTTP ${r.status}`);
+  return data;
+}
+
+fetch("/health").then((r) => r.json()).then((h) => {
+  $("status").textContent = `Regulation ${h.regulation}. Database ${h.database ? "connected" : "DOWN"}. ` +
+    (h.questions_enabled ? "Questions on." : "Questions off (no API key); team analysis works.");
+}).catch(() => { $("status").textContent = "Server not reachable."; });
+
+$("analyze").onclick = async () => {
+  const out = $("team-out"), btn = $("analyze");
+  btn.disabled = true; out.hidden = false; out.textContent = "Analyzing…";
+  try {
+    const gt = document.querySelector("input[name=gt]:checked").value;
+    out.textContent = (await post("/api/analyze", {team: $("team").value, game_type: gt})).text;
+  } catch (e) { out.innerHTML = `<span class="err">${esc(e.message)}</span>`; }
+  btn.disabled = false;
+};
+
+$("ask").onclick = async () => {
+  const out = $("ask-out"), btn = $("ask");
+  btn.disabled = true; out.innerHTML = "<p>Thinking…</p>";
+  try {
+    const a = await post("/api/ask", {question: $("q").value});
+    const srcs = a.sources.map((s) => `<li>[${esc(s.id)}] ${esc(s.title)}: ${esc(s.source)} (${esc(s.license)}), ${esc(s.ref)}</li>`).join("");
+    out.innerHTML = `<pre>${esc(a.answer)}</pre><p class="src">Regulation ${esc(a.regulation)} · ${esc(a.status)} · ${esc(a.model)}</p>` +
+      (srcs ? `<p class="src">Sources:</p><ul class="src">${srcs}</ul>` : "") +
+      (a.warnings.length ? `<p class="err">Citation warnings: ${esc(a.warnings.join(", "))}</p>` : "");
+  } catch (e) { out.innerHTML = `<p class="err">${esc(e.message)}</p>`; }
+  btn.disabled = false;
+};
+$("q").addEventListener("keydown", (e) => { if (e.key === "Enter") $("ask").click(); });
+</script>
+</body>
+</html>
