@@ -13,7 +13,11 @@ help:  ## list targets
 	@grep -E '^[a-z-]+:.*##' $(MAKEFILE_LIST) | awk -F':.*## ' '{printf "  %-15s %s\n", $$1, $$2}'
 
 setup:  ## create .venv and install dependencies
-	python3.12 -m venv .venv && .venv/bin/pip install -q -e ".[dev]"
+	@# Some macOS Python builds fail in ensurepip; fall back to pip's official bootstrap.
+	test -x .venv/bin/pip || python3.12 -m venv .venv || \
+	  (rm -rf .venv && python3.12 -m venv --without-pip .venv && \
+	   curl -sS https://bootstrap.pypa.io/get-pip.py | .venv/bin/python)
+	.venv/bin/pip install -q -e ".[dev]"
 
 db-up:  ## start Postgres+pgvector in Docker (256 MB cap)
 	docker compose up -d --wait
